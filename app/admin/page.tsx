@@ -218,12 +218,13 @@ export default function AdminPage() {
 
   if (!authed) return <LoginForm onLogin={() => setAuthed(true)} />;
 
-  // Unique tickers that have pending events
+  // All events that have any data (pending OR published — both editable)
   const pendingEvents = allEvents.filter((e) => e.transcript_status === "pending");
-  const tickers = [...new Set(pendingEvents.map((e) => e.ticker))].sort();
+  const actionableEvents = allEvents.filter((e) => e.transcript_status !== "unavailable");
+  const tickers = [...new Set(actionableEvents.map((e) => e.ticker))].sort();
 
-  // Quarters for selected ticker
-  const quartersForTicker = pendingEvents
+  // All quarters for selected ticker (pending + published)
+  const quartersForTicker = actionableEvents
     .filter((e) => e.ticker === selectedTicker)
     .map((e) => e.fiscal_quarter)
     .sort()
@@ -236,13 +237,18 @@ export default function AdminPage() {
 
   function handleTickerChange(ticker: string) {
     setSelectedTicker(ticker);
-    // Auto-select most recent quarter for this ticker
-    const quarters = pendingEvents
+    // Auto-select most recent pending quarter, or most recent overall
+    const pendingQs = pendingEvents
       .filter((e) => e.ticker === ticker)
       .map((e) => e.fiscal_quarter)
       .sort()
       .reverse();
-    setSelectedQuarter(quarters[0] ?? "");
+    const allQs = actionableEvents
+      .filter((e) => e.ticker === ticker)
+      .map((e) => e.fiscal_quarter)
+      .sort()
+      .reverse();
+    setSelectedQuarter(pendingQs[0] ?? allQs[0] ?? "");
   }
 
   return (
@@ -262,11 +268,11 @@ export default function AdminPage() {
 
       {loading && <p className="text-xs text-neutral-500">Loading events…</p>}
 
-      {!loading && pendingEvents.length === 0 && (
-        <p className="text-xs text-neutral-600">No pending transcripts.</p>
+      {!loading && actionableEvents.length === 0 && (
+        <p className="text-xs text-neutral-600">No events found. Run the bootstrap script first.</p>
       )}
 
-      {!loading && pendingEvents.length > 0 && (
+      {!loading && actionableEvents.length > 0 && (
         <>
           {/* ── Selectors ── */}
           <div className="flex gap-3">
@@ -280,10 +286,15 @@ export default function AdminPage() {
               >
                 <option value="">— select company —</option>
                 {tickers.map((t) => {
-                  const count = pendingEvents.filter((e) => e.ticker === t).length;
+                  const pending = pendingEvents.filter((e) => e.ticker === t).length;
+                  const published = allEvents.filter((e) => e.ticker === t && e.transcript_status === "published").length;
+                  const label = [
+                    pending > 0 ? `${pending} pending` : "",
+                    published > 0 ? `${published} published` : "",
+                  ].filter(Boolean).join(", ");
                   return (
                     <option key={t} value={t}>
-                      {t} ({count} pending)
+                      {t}{label ? ` (${label})` : ""}
                     </option>
                   );
                 })}
