@@ -35,8 +35,9 @@ uniquely personal experience.
 We're also working on merging LLMs with the recommendation systems that power Facebook,
 Instagram, Threads, and our ads system. Our world class recommendation systems are already
 driving meaningful growth across our apps and ads business, but we think that the current
-systems are primitive compared to what will be possible soon. Today our systems help people stay 
-2
+systems are primitive compared to what will be possible soon. Today our systems help people stay
+1
+
 in touch with friends, understand the world, and find interesting and entertaining content. But
 soon, we'll be able to understand people's unique personal goals, and tailor feeds to show each
 person content that helps them improve their lives in the ways that they want.
@@ -78,8 +79,9 @@ capacity, including ensuring positive economic impact in the communities that we
 around the world.
 An important part of Meta Compute will be making long term investments in silicon and energy.
 We will continue working with key partners while advancing our own silicon program. We're
-architecting our systems so that we can be flexible in the systems that we use, and we expect the 
-3
+architecting our systems so that we can be flexible in the systems that we use, and we expect the
+2
+
 cost per gigawatt to decrease significantly over time through optimizing both our technology and
 supply chain.
 The last thing that I want to mention is that I think that 2026 is going to be the year that AI starts
@@ -115,8 +117,9 @@ introduction of Quest 3S in Q4 of 2024 as well as retail partners procuring Ques
 the third quarter of 2025 to prepare for the holiday season, which was recorded as revenue in Q3.
 Moving now to our consolidated results.
 Q4 total revenue was $59.9 billion, up 24% or 23% on a constant currency basis.
-Q4 total expenses were $35.1 billion, up 40% compared to last year. 
-4
+Q4 total expenses were $35.1 billion, up 40% compared to last year.
+3
+
 Year-over-year growth was driven primarily by employee compensation expenses, legal expenses,
 and infrastructure costs.
 Growth in employee compensation expenses reflects the technical hires we’ve added this year,
@@ -150,8 +153,9 @@ scaling. This unlocked the ability for our systems to consider longer interactio
 identify a person’s interests.
 On Facebook, video time continued to grow double-digits year-over-year in the US, and we’re
 seeing strong results from our ranking and product efforts on both Feed and video surfaces. The
-optimizations we made in Q4 drove a 7% lift in views of organic Feed and video posts on 
-5
+optimizations we made in Q4 drove a 7% lift in views of organic Feed and video posts on
+4
+
 Facebook, resulting in the largest quarterly revenue impact from Facebook product launches in
 the past two years.
 We’re continuing to increase the freshness and originality of content recommendations as well. On
@@ -189,8 +193,9 @@ pull into responses.
 Turning to the second driver of our revenue performance: increasing monetization efficiency.
 The first part of this work is optimizing the level of ads within organic engagement.
 Here, our focus remains on tuning our systems to identify the right time and place to deliver ads.
-In some cases, this enables us to grow the overall level of ad load while preserving the user 
-6
+In some cases, this enables us to grow the overall level of ad load while preserving the user
+5
+
 experience. However, an increasingly important part of this work is finding opportunities to drive
 incremental conversions within the same overall level of ad load by determining when a person is
 more interested in seeing an ad. In fact, in the second half of 2025, our initiatives on Facebook to
@@ -218,7 +223,8 @@ This new sequence learning architecture is significantly more efficient than our
 which should enable us to further scale up the data, complexity and compute we use in our future
 ranking models to deliver performance gains.
 As we scale up our foundational ads models like GEM, we are also developing more advanced
-models to use downstream of them at run-time for ads inference. In Q4, we launched a new runtime model across Instagram Feed, Stories, and Reels, resulting in a 3% increase in conversion
+models to use downstream of them at run-time for ads inference. In Q4, we launched a new run-
+time model across Instagram Feed, Stories, and Reels, resulting in a 3% increase in conversion
 rates in Q4.
 We continue to progress on our model unification efforts under Lattice as well. After seeing strong
 success with the consolidation of Facebook Feed and video models in the first half of 2025, in Q4
@@ -228,8 +234,9 @@ This, along with a series of back-end improvements, drove a 12% increase in ads 
 evolve our systems toward running a smaller number of highly capable models.
 Moving to the next area, ads products.
 We continue investing in ways to help businesses leverage AI to reduce the friction of setting up
-and optimizing an ad campaign. In Q4, we started testing our Meta AI business assistant with 
-7
+and optimizing an ad campaign. In Q4, we started testing our Meta AI business assistant with
+6
+
 advertisers, which helps with tasks like campaign optimization and account support. In the coming
 months, we’ll make it available to more advertisers so each business has an AI assistant they can
 chat with that remembers their businesses’ goals and provides personalized recommendations on
@@ -243,7 +250,8 @@ incremental conversions versus our standard attribution model, and this product 
 achieved a multi-billion dollar annual run-rate just seven months since launching.
 The last area of our monetization work I’ll cover is business messaging, where we’re seeing strong
 momentum across our portfolio of solutions.
-Click-to-message ads revenue growth accelerated in Q4, with the US up more than 50% yearover-year driven by strong adoption of our Website to Message ads, which direct people to a
+Click-to-message ads revenue growth accelerated in Q4, with the US up more than 50% year-
+over-year driven by strong adoption of our Website to Message ads, which direct people to a
 businesses’ website for more information before choosing to launch a chat.
 Paid messaging within WhatsApp continues to scale as well, crossing a $2 billion annual run-rate in
 Q4.
@@ -258,7 +266,8 @@ where individuals can have significant impact. A big focus of this is to enable 
 advancement of our AI coding tools, where we are seeing strong momentum. Since the beginning
 of 2025, we've seen a 30% increase in output per engineer, with the majority of that growth
 coming from the adoption of agentic coding, which saw a big jump in Q4. We’re seeing even
-stronger gains with power users of AI coding tools, whose output has increased 80% year-overyear. We expect this growth to accelerate through the next half.
+stronger gains with power users of AI coding tools, whose output has increased 80% year-over-
+year. We expect this growth to accelerate through the next half.
 Next, I would like to discuss our approach to capital allocation.
 We have significant opportunities to improve our core business in 2026. We plan to continue to
 prioritize investing in the business to support these opportunities, while also positioning us for an
@@ -267,8 +276,9 @@ Procuring sufficient infrastructure capacity is central to these initiatives, an
 meet our silicon needs by deploying a variety of chips that optimally support each of our different
 workloads. To that end, in Q4 we extended our Andromeda ads retrieval engine so it can now run
 on Nvidia, AMD, and MTIA. This, along with model innovations, enabled us to nearly triple
-Andromeda’s compute efficiency. In Q1, we will extend our MTIA program to support our core 
-8
+Andromeda’s compute efficiency. In Q1, we will extend our MTIA program to support our core
+7
+
 ranking and recommendation training workloads, in addition to the inference workloads it
 currently runs.
 More broadly, as we invest in infrastructure to meet our business needs, we continue to prioritize
@@ -306,7 +316,8 @@ monitor legal and regulatory headwinds in the EU and the US that could significa
 business and financial results. For example, we continue to see scrutiny on youth-related issues
 and have a number of trials scheduled for this year in the US, which may ultimately result in a
 material loss.
-9
+8
+
 In closing, 2025 was another strong year for our company. The investments we’ve made to
 improve our business are continuing to drive strong growth, and we have an exciting roadmap this
 year to deliver new experiences and services for our global community. As always, thank you to
@@ -345,7 +356,8 @@ I think the theme on the business, I mean this is -- I don’t think I’m going
 break any new ground here, but there are several major business opportunities
 that we’re focused on. I think that -- one is just going to be improving the core
 products and accelerating the current business.
-10
+9
+
 I talked about that in terms of the connecting of the recommendation systems
 and the LLMs which I think will both improve the quality of the organic
 experience and of advertising.
@@ -385,8 +397,9 @@ Susan Li: Brian, on your second question, there’s obviously a range of outcome
 captured in the Q1’26 revenue outlook.
 It overall reflects our expectation for a strong quarter of growth. The range
 embeds an outlook for accelerated growth, and that’s really underpinned by
-the strong demand that we saw through the end of Q4 and continuing into the 
-11
+the strong demand that we saw through the end of Q4 and continuing into the
+10
+
 start of 2026. Now I will say we also expect foreign currency to be a four-point
 benefit to year-over-year growth.
 So that is a three-point larger tailwind than it was in Q4’25 as we lap the
@@ -427,7 +440,8 @@ ways including by optimizing workloads, improving infrastructure utilization,
 diversifying our chip supply and just investing in efficiency improvements as
 part of our core technology development efforts in areas like content and ads
 ranking.
-12
+11
+
 So that was your first question. The second question about how the ads
 business scales. I think we don’t -- I don’t have an extremely precise answer to
 this question.
@@ -466,8 +480,9 @@ I think they’re -- like AI is going to enable a lot of new experiences. I outl
 thematically a bunch of these in the upfront comments around personal AI,
 around LLMs combining with the recommendation systems.
 I think that’s a somewhat longer-term research project that I think will yield
-dividends over a long period of time but we’re already definitely seeing 
-13
+dividends over a long period of time but we’re already definitely seeing
+12
+
 optimizations of the recommendation systems as we’re including more of the
 AI research improvements and advances into that.
 The content is going to improve. There are going to be new formats. There are
@@ -507,7 +522,8 @@ build a lot of things. And that’s what we’re here to do.
 Susan Li: Mark, on your second question, I want to make sure and clarify something. So I
 think in the question, you had said that operating income growth in ‘26 would
 be higher than ‘25. And I want to make sure my comments were super clear.
-14
+13
+
 In 2026, we expect to deliver operating income above 2025 operating income.
 So this is comparing absolute dollars, not year-over-year growth. So to give
 some context on that, we are going into 2026 with strong revenue growth at
@@ -546,8 +562,9 @@ one product.
 We’re doing a lot of models over time and a lot of different products. And I
 want to make sure that the work can speak for itself and also that we all
 internalize that this is a journey that we’re on. And the first set of things that
-we put out, I think, are going to be more about showing the trajectory that 
-15
+we put out, I think, are going to be more about showing the trajectory that
+14
+
 we’re on rather than being a single moment in time. So yes, I’m quite optimistic,
 but don’t have anything else particularly concrete to share.
 Susan Li: Doug, on the first part of your question, we are making very significant
@@ -586,7 +603,8 @@ But I mean all these things, even if they scale very quickly, are going to take
 some time to be meaningful at the scale of what the ads business is. And while
 we’re doing that, we’re just very focused on also delivering more value to
 businesses and more quality in the apps that we run ads in.
-16
+15
+
 Susan Li: Justin, on your second question, we saw healthy year-over-year growth across
 all verticals in Q4 with the exception of politics as we lapped the U.S.
 presidential election last year. The online commerce vertical was the largest
@@ -626,7 +644,8 @@ continue to be here for a long time.
 It’s going to continue growing, it’s not going anywhere, just like photos and
 text in many ways, continue to grow even as the market continues to grow
 beyond that.
-17
+16
+
 But I don’t think that video is the ultimate kind of final format. I think that this is
 going to get -- we’re going to get more formats that are more interactive and
 immersive and you’re going to get them in your feeds.
@@ -667,7 +686,8 @@ So on the sort of core engagement piece, we launched several ranking
 improvements in Q4 on Facebook and Instagram that drove incremental
 engagement. And there isn’t really one single launch that is driving most of the
 gains.
-18
+17
+
 It’s multiple optimizations to our recommendation systems that are helping us
 make more accurate predictions about what will be interesting to each person.
 And I talked a little bit about some of these -- the specific instantiations on
@@ -708,8 +728,9 @@ Operator: Our next question will come from the line of Ken Gawrelski with Wells 
 Please go ahead.
 Kenneth Gawrelski: Thank you very much. Two, if I may, please. First, for Mark, how critical is it
 for Meta to have a leading general purpose model or is there a sufficient
-capability in a model that really excels at specific use cases, maybe similar to 
-19
+capability in a model that really excels at specific use cases, maybe similar to
+18
+
 what you see at Anthropic in coding today? We’d love if you could opine on
 that. And then second, maybe I just want to push again, maybe on this last
 question, Susan.
@@ -748,8 +769,9 @@ things that were positive ROI and then tracking how they performed over the
 course of the year.
 And we’ve just finished running our 2026 budgeting process, and we have
 funded a similar set of investments which we expect will enable us to continue
-delivering strong revenue growth in 2026. 
-20
+delivering strong revenue growth in 2026.
+19
+
 Having said that, I expect both full year reported and constant currency
 revenue growth to be below the levels in Q1 for a few reasons. First, we would
 expect that currency tailwinds will dissipate later in the year based on current
@@ -790,7 +812,8 @@ to offer differentiated insights and we think we have a very strong track record
 in building highly personalized experiences, and we’re bringing that into Meta
 AI so that we can tailor responses to each person’s personal interests and
 preferences.
-21
+20
+
 On your second question which is about share repurchase. Share repurchase
 levels will vary from time to time for a lot of reasons including whether we
 believe there are areas that have a greater near-term need for capital.
@@ -802,3 +825,4 @@ Kenneth Dorell: Great. I think we will wrap it here. Thank you everyone, for joi
 look forward to speaking with you again soon.
 Operator: This concludes today’s conference call. Thank you for your participation, and
 you may now disconnect.
+21
