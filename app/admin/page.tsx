@@ -221,7 +221,7 @@ export default function AdminPage() {
   // All events that have any data (pending OR published — both editable)
   const pendingEvents = allEvents.filter((e) => e.transcript_status === "pending");
   const actionableEvents = allEvents.filter((e) => e.transcript_status !== "unavailable");
-  const tickers = [...new Set(actionableEvents.map((e) => e.ticker))].sort();
+  const tickers = Array.from(new Set(actionableEvents.map((e) => e.ticker))).sort();
 
   // All quarters for selected ticker (pending + published)
   const quartersForTicker = actionableEvents
