@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
-RSS_URL = "https://finance.yahoo.com/rss/headline?s={ticker}"
+RSS_URL = "https://feeds.finance.yahoo.com/rss/2.0/headline?s={ticker}&region=US&lang=en-US"
 
 
 def _parse_date(entry) -> str:
@@ -24,7 +24,7 @@ def get_news(ticker: str, limit: int = 5) -> list[dict]:
     url = RSS_URL.format(ticker=ticker)
     try:
         # feedparser can fetch directly but using httpx for better timeout control
-        resp = httpx.get(url, timeout=10.0, headers={"User-Agent": "Mozilla/5.0"})
+        resp = httpx.get(url, timeout=10.0, headers={"User-Agent": "Mozilla/5.0"}, follow_redirects=True)
         resp.raise_for_status()
         feed = feedparser.parse(resp.text)
 

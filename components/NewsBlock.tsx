@@ -3,57 +3,50 @@
 import type { NewsItem } from "@/lib/types";
 
 function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const hours = Math.floor(diff / 3600000);
-  if (hours < 1) return "< 1h ago";
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  const h = Math.floor((Date.now() - new Date(iso).getTime()) / 3600000);
+  if (h < 1) return "<1H";
+  if (h < 24) return `${h}H`;
+  return `${Math.floor(h / 24)}D`;
 }
 
-interface Props {
-  news: NewsItem[];
-  error?: string;
-}
-
-export default function NewsBlock({ news, error }: Props) {
-  if (error) {
-    return (
-      <div className="text-xs text-neutral-500 border border-neutral-800 rounded px-3 py-2">
-        News unavailable
-      </div>
-    );
-  }
-  if (!news) {
-    return (
-      <div className="text-xs text-neutral-600 border border-neutral-800 rounded px-3 py-2 animate-pulse">
-        Loading…
-      </div>
-    );
-  }
-  if (news.length === 0) {
-    return (
-      <div className="text-xs text-neutral-600 border border-neutral-800 rounded px-3 py-2">
-        No recent news
-      </div>
-    );
-  }
+export default function NewsBlock({ news, error }: { news: NewsItem[]; error?: string }) {
+  if (error) return (
+    <div style={{ color: "var(--text-faint)", fontSize: "11px" }}>NEWS UNAVAILABLE</div>
+  );
+  if (!news?.length) return (
+    <div style={{ color: "var(--text-faint)", fontSize: "11px" }}>NO RECENT NEWS</div>
+  );
 
   return (
-    <div className="border border-neutral-800 rounded px-3 py-2 space-y-1.5">
-      {news.slice(0, 5).map((item, i) => (
-        <div key={i} className="text-xs">
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      {news.slice(0, 4).map((item, i) => (
+        <div key={i} style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+          <span style={{
+            color: "var(--text-faint)", fontSize: "10px", whiteSpace: "nowrap",
+            paddingTop: "1px", minWidth: "24px",
+          }}>
+            {timeAgo(item.published_at)}
+          </span>
           <a
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-neutral-200 hover:text-white transition-colors line-clamp-2 leading-snug"
+            style={{
+              color: "var(--text)",
+              fontSize: "11px",
+              lineHeight: "1.4",
+              textDecoration: "none",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--primary)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--text)")}
           >
             {item.headline}
           </a>
-          <div className="text-neutral-600 mt-0.5">
-            {item.source} · {timeAgo(item.published_at)}
-          </div>
         </div>
       ))}
     </div>

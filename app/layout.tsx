@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI Market Map",
-  description: "Public markets dashboard tracking the AI ecosystem",
+  title: "AI MARKET SCAN",
+  description: "Public markets dashboard tracking the AI ecosystem — 28 companies",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

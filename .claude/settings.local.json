@@ -19,7 +19,10 @@
       "Bash(sed -i '' 's/import type { NextConfig } from \"next\";//' /Users/ishisinghal/market_map_agent/next.config.mjs)",
       "Bash(sed -i '' 's/const nextConfig: NextConfig = {/const nextConfig = {/' /Users/ishisinghal/market_map_agent/next.config.mjs)",
       "Bash(python scripts/detect_new_earnings.py)",
-      "Bash(python3 scripts/detect_new_earnings.py)"
+      "Bash(python3 scripts/detect_new_earnings.py)",
+      "Bash(gh repo *)",
+      "Bash(curl -s http://localhost:3000/api/health)",
+      "Bash(curl -s http://localhost:8000/health)"
     ]
   }
 }

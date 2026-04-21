@@ -3,76 +3,56 @@
 import { useState } from "react";
 import type { EarningsEvent } from "@/lib/types";
 
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
 }
 
-function fmtNum(n: number | null, prefix = ""): string {
-  if (n == null) return "—";
-  return `${prefix}${n.toFixed(2)}`;
-}
-
-function BeatMiss({ actual, estimate }: { actual: number | null; estimate: number | null }) {
-  if (actual == null || estimate == null) return <span className="text-neutral-500">—</span>;
+function Beat({ actual, estimate }: { actual: number | null; estimate: number | null }) {
+  if (actual == null || estimate == null) return <span style={{ color: "var(--text-faint)" }}>—</span>;
   const beat = actual >= estimate;
-  return (
-    <span className={beat ? "text-emerald-400" : "text-red-400"}>
-      {beat ? "Beat" : "Miss"}
-    </span>
-  );
+  return <span style={{ color: beat ? "var(--pos)" : "var(--neg)" }}>{beat ? "BEAT" : "MISS"}</span>;
 }
 
-function StatusBadge({ status, irUrl }: { status: string; irUrl: string }) {
-  const styles: Record<string, string> = {
-    published: "bg-emerald-900 text-emerald-300",
-    pending: "bg-yellow-900 text-yellow-300",
-    unavailable: "bg-neutral-800 text-neutral-400",
-  };
-  const labels: Record<string, string> = {
-    published: "Transcript",
-    pending: "Pending",
-    unavailable: "Unavailable",
-  };
-  if (status === "pending" || status === "unavailable") {
-    return (
-      <a href={irUrl} target="_blank" rel="noopener noreferrer">
-        <span className={`text-xs px-1.5 py-0.5 rounded ${styles[status]}`}>
-          {labels[status]}
-        </span>
-      </a>
-    );
-  }
-  return (
-    <span className={`text-xs px-1.5 py-0.5 rounded ${styles[status]}`}>
-      {labels[status]}
-    </span>
-  );
-}
+const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
+  published:   { bg: "rgba(57,211,83,0.12)",   color: "var(--pos)", label: "TRANSCRIPT" },
+  pending:     { bg: "rgba(173,255,47,0.08)",   color: "var(--primary)", label: "PENDING" },
+  unavailable: { bg: "rgba(194,212,188,0.05)",  color: "var(--text-faint)", label: "N/A" },
+};
 
 function SummarySection({ summary }: { summary: NonNullable<EarningsEvent["ai_summary"]> }) {
   const sections = [
-    { key: "ai_revenue_mentions" as const, label: "AI Revenue" },
-    { key: "capex_guidance" as const, label: "CapEx Guidance" },
-    { key: "gpu_supply_commentary" as const, label: "GPU Supply" },
-    { key: "data_center_plans" as const, label: "Data Centers" },
-    { key: "other_notable" as const, label: "Other Notable" },
+    { key: "ai_revenue_mentions" as const,    label: "AI REVENUE" },
+    { key: "capex_guidance" as const,         label: "CAPEX" },
+    { key: "gpu_supply_commentary" as const,  label: "GPU SUPPLY" },
+    { key: "data_center_plans" as const,      label: "DATA CENTERS" },
+    { key: "other_notable" as const,          label: "OTHER" },
   ];
-
   return (
-    <div className="mt-2 space-y-2 text-xs border-t border-neutral-800 pt-2">
+    <div style={{
+      marginTop: "10px", paddingTop: "10px",
+      borderTop: "1px solid var(--border)",
+      display: "flex", flexDirection: "column", gap: "10px",
+    }}>
       {sections.map(({ key, label }) => {
         const quotes = summary[key];
-        if (!quotes || quotes.length === 0) return null;
+        if (!quotes?.length) return null;
         return (
           <div key={key}>
-            <div className="text-neutral-500 mb-1">{label}</div>
-            <ul className="space-y-1">
-              {quotes.map((q, i) => (
-                <li key={i} className="text-neutral-300 italic border-l border-neutral-700 pl-2">
-                  &ldquo;{q}&rdquo;
-                </li>
-              ))}
-            </ul>
+            <div style={{ fontSize: "9px", letterSpacing: "0.12em", color: "var(--primary-dim)", marginBottom: "4px" }}>
+              {label}
+            </div>
+            {quotes.map((q, i) => (
+              <div key={i} style={{
+                fontSize: "10px", lineHeight: "1.5",
+                color: "var(--text-dim)",
+                paddingLeft: "8px",
+                borderLeft: "1px solid var(--border-hi)",
+                marginBottom: "4px",
+                fontStyle: "italic",
+              }}>
+                "{q}"
+              </div>
+            ))}
           </div>
         );
       })}
@@ -80,60 +60,72 @@ function SummarySection({ summary }: { summary: NonNullable<EarningsEvent["ai_su
   );
 }
 
-interface Props {
-  events: EarningsEvent[];
-  irUrl: string;
-  error?: string;
-}
-
-export default function EarningsTimeline({ events, irUrl, error }: Props) {
+export default function EarningsTimeline({
+  events, irUrl, error,
+}: { events: EarningsEvent[]; irUrl: string; error?: string }) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  if (error) {
-    return (
-      <div className="text-xs text-neutral-500 border border-neutral-800 rounded px-3 py-2">
-        Earnings data unavailable
-      </div>
-    );
-  }
-  if (!events || events.length === 0) {
-    return (
-      <div className="text-xs text-neutral-700 border border-neutral-800 rounded px-3 py-2">
-        No earnings events recorded yet
-      </div>
-    );
-  }
+  if (error || !events?.length) return (
+    <div style={{ color: "var(--text-faint)", fontSize: "10px" }}>
+      {error ? "EARNINGS UNAVAILABLE" : "NO EVENTS RECORDED"}
+    </div>
+  );
 
   return (
-    <div className="border border-neutral-800 rounded divide-y divide-neutral-800">
+    <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
       {events.slice(0, 4).map((ev) => {
         const key = `${ev.ticker}-${ev.fiscal_quarter}`;
-        const isExpanded = expanded === key;
+        const isExp = expanded === key;
+        const st = STATUS_STYLES[ev.transcript_status] ?? STATUS_STYLES.unavailable;
 
         return (
-          <div key={key} className="px-3 py-2 text-xs">
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <div className="flex items-center gap-2">
-                <span className="text-neutral-400 font-medium">{ev.fiscal_quarter}</span>
-                <span className="text-neutral-600">{fmtDate(ev.report_date)}</span>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-neutral-500">
-                  EPS {fmtNum(ev.eps_actual)} / est {fmtNum(ev.eps_estimate)}{" "}
-                  <BeatMiss actual={ev.eps_actual} estimate={ev.eps_estimate} />
+          <div key={key} style={{
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            padding: "6px 8px",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "4px" }}>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <span style={{ fontSize: "10px", color: "var(--primary)", letterSpacing: "0.04em" }}>
+                  {ev.fiscal_quarter}
                 </span>
-                <StatusBadge status={ev.transcript_status} irUrl={irUrl} />
+                <span style={{ fontSize: "9px", color: "var(--text-faint)" }}>
+                  {fmtDate(ev.report_date)}
+                </span>
+                <Beat actual={ev.eps_actual} estimate={ev.eps_estimate} />
+              </div>
+              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                {ev.transcript_status !== "published" ? (
+                  <a href={irUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                    <span style={{
+                      fontSize: "9px", letterSpacing: "0.08em",
+                      padding: "2px 5px", background: st.bg, color: st.color,
+                    }}>
+                      {st.label}
+                    </span>
+                  </a>
+                ) : (
+                  <span style={{
+                    fontSize: "9px", letterSpacing: "0.08em",
+                    padding: "2px 5px", background: st.bg, color: st.color,
+                  }}>
+                    {st.label}
+                  </span>
+                )}
                 {ev.transcript_status === "published" && ev.ai_summary && (
                   <button
-                    onClick={() => setExpanded(isExpanded ? null : key)}
-                    className="text-neutral-500 hover:text-neutral-300 transition-colors underline"
+                    onClick={() => setExpanded(isExp ? null : key)}
+                    style={{
+                      fontSize: "9px", color: "var(--primary-dim)", background: "none",
+                      border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.06em",
+                    }}
                   >
-                    {isExpanded ? "hide" : "AI notes"}
+                    {isExp ? "COLLAPSE" : "AI NOTES"}
                   </button>
                 )}
               </div>
             </div>
-            {isExpanded && ev.ai_summary && <SummarySection summary={ev.ai_summary} />}
+            {isExp && ev.ai_summary && <SummarySection summary={ev.ai_summary} />}
           </div>
         );
       })}

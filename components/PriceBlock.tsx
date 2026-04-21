@@ -2,66 +2,65 @@
 
 import type { Quote } from "@/lib/types";
 
-function fmt(n: number | null | undefined, decimals = 2): string {
+function fmt(n: number | null | undefined, d = 2): string {
   if (n == null) return "—";
-  return n.toLocaleString("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
+  return n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 
 function fmtCap(n: number | null | undefined): string {
   if (n == null) return "—";
   if (n >= 1e12) return `$${(n / 1e12).toFixed(2)}T`;
-  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(0)}M`;
+  if (n >= 1e9)  return `$${(n / 1e9).toFixed(1)}B`;
+  if (n >= 1e6)  return `$${(n / 1e6).toFixed(0)}M`;
   return `$${n.toLocaleString()}`;
 }
 
-function PctBadge({ pct }: { pct: number | null | undefined }) {
-  if (pct == null) return <span className="text-neutral-500">—</span>;
-  const pos = pct >= 0;
+function Pct({ v }: { v: number | null | undefined }) {
+  if (v == null) return <span style={{ color: "var(--text-dim)" }}>—</span>;
+  const pos = v >= 0;
   return (
-    <span className={pos ? "text-emerald-400" : "text-red-400"}>
-      {pos ? "+" : ""}
-      {fmt(pct)}%
+    <span style={{ color: pos ? "var(--pos)" : "var(--neg)" }}>
+      {pos ? "▲" : "▼"} {Math.abs(v).toFixed(2)}%
     </span>
   );
 }
 
-interface Props {
-  quote: Quote | null;
-  error?: string;
-}
+export default function PriceBlock({ quote, error }: { quote: Quote | null; error?: string }) {
+  if (error) return (
+    <div className="price-block unavail">
+      <span style={{ color: "var(--text-faint)" }}>PRICE UNAVAILABLE</span>
+    </div>
+  );
 
-export default function PriceBlock({ quote, error }: Props) {
-  if (error) {
-    return (
-      <div className="text-xs text-neutral-500 border border-neutral-800 rounded px-3 py-2">
-        Price unavailable
-      </div>
-    );
-  }
-  if (!quote) {
-    return (
-      <div className="text-xs text-neutral-600 border border-neutral-800 rounded px-3 py-2 animate-pulse">
-        Loading…
-      </div>
-    );
-  }
+  if (!quote) return (
+    <div className="price-block loading">
+      <span style={{ color: "var(--text-faint)" }}>FETCHING</span>
+      <span className="cursor" />
+    </div>
+  );
 
   return (
-    <div className="border border-neutral-800 rounded px-3 py-2 space-y-1">
-      <div className="flex items-baseline gap-3">
-        <span className="text-lg font-semibold text-white">${fmt(quote.price)}</span>
-        <PctBadge pct={quote.day_change_pct} />
-        <span className="text-neutral-500 text-xs">today</span>
-      </div>
-      <div className="flex gap-4 text-xs text-neutral-400">
-        <span>
-          YTD <PctBadge pct={quote.ytd_pct} />
+    <div className="price-block">
+      <div style={{ display: "flex", alignItems: "baseline", gap: "10px", flexWrap: "wrap" }}>
+        <span style={{
+          fontFamily: "'Bebas Neue', sans-serif",
+          fontSize: "28px",
+          letterSpacing: "0.02em",
+          color: "var(--primary)",
+          textShadow: "var(--glow)",
+          lineHeight: 1,
+        }}>
+          ${fmt(quote.price)}
         </span>
-        <span>MCap {fmtCap(quote.market_cap)}</span>
+        <span style={{ fontSize: "12px" }}><Pct v={quote.day_change_pct} /></span>
+      </div>
+      <div style={{
+        display: "flex", gap: "16px", marginTop: "6px",
+        fontSize: "11px", color: "var(--text-dim)",
+      }}>
+        <span>YTD <Pct v={quote.ytd_pct} /></span>
+        <span style={{ color: "var(--border-hi)" }}>│</span>
+        <span>MCAP <span style={{ color: "var(--text)" }}>{fmtCap(quote.market_cap)}</span></span>
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ async function fetchQuotes(): Promise<Record<string, Quote | { error: string }>>
 
   try {
     const resp = await fetch(`${BACKEND}/quotes?tickers=${encodeURIComponent(tickers)}`, {
-      signal: AbortSignal.timeout(25000),
+      signal: AbortSignal.timeout(55000), // Render free tier can take ~30s to wake
     });
     if (!resp.ok) throw new Error(`${resp.status}`);
     const data = await resp.json();
@@ -136,31 +136,107 @@ export default async function DashboardPage() {
   const dataByTicker = Object.fromEntries(perTickerData.map(({ ticker, data }) => [ticker, data]));
   const grouped = groupByTheme();
 
+  // Build ticker tape items from quotes
+  const tickerTapeItems = companies
+    .map((c) => {
+      const q = quotesMap[c.ticker];
+      if (!q || "error" in q) return null;
+      const quote = q as Quote;
+      const sign = (quote.day_change_pct ?? 0) >= 0 ? "▲" : "▼";
+      return `${c.ticker} ${quote.price?.toFixed(2) ?? "—"} ${sign}${Math.abs(quote.day_change_pct ?? 0).toFixed(2)}%`;
+    })
+    .filter(Boolean) as string[];
+
   return (
-    <main className="max-w-screen-2xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 border-b border-neutral-800 pb-4">
-        <div>
-          <h1 className="text-lg font-bold text-white tracking-tight">AI Market Map</h1>
-          <p className="text-xs text-neutral-500 mt-0.5">
-            28 publicly listed companies across the AI ecosystem
-          </p>
+    <div style={{ position: "relative", zIndex: 1 }}>
+      {/* ── Ticker Tape ─────────────────────────────────────────────────────── */}
+      <div style={{
+        borderBottom: "1px solid var(--border)",
+        background: "var(--surface)",
+        overflow: "hidden",
+        height: "28px",
+        display: "flex",
+        alignItems: "center",
+      }}>
+        <div style={{
+          display: "flex",
+          whiteSpace: "nowrap",
+          animation: "ticker 60s linear infinite",
+          gap: "0",
+        }}>
+          {[...tickerTapeItems, ...tickerTapeItems].map((item, i) => (
+            <span key={i} style={{
+              fontSize: "10px",
+              letterSpacing: "0.06em",
+              color: item.includes("▲") ? "var(--pos)" : item.includes("▼") ? "var(--neg)" : "var(--text-dim)",
+              padding: "0 20px",
+              borderRight: "1px solid var(--border)",
+            }}>
+              {item}
+            </span>
+          ))}
         </div>
-        <div className="text-xs text-neutral-600">Data as of {asOf}</div>
       </div>
 
-      {/* Themed sections */}
-      {SUB_THEME_ORDER.map((theme) => {
-        const themeCompanies = grouped.get(theme) ?? [];
-        const themeData = themeCompanies.map((c) => dataByTicker[c.ticker]).filter(Boolean);
-        if (themeData.length === 0) return null;
-        return <ThemeSection key={theme} theme={theme} companies={themeData} />;
-      })}
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
+      <header style={{
+        borderBottom: "1px solid var(--border)",
+        padding: "20px 32px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        background: "var(--surface)",
+      }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "16px" }}>
+          <h1 style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: "28px",
+            letterSpacing: "0.12em",
+            color: "var(--primary)",
+            textShadow: "var(--glow)",
+            margin: 0,
+          }}>
+            AI MARKET SCAN
+          </h1>
+          <span style={{ fontSize: "10px", color: "var(--text-faint)", letterSpacing: "0.1em" }}>
+            {companies.length} COMPANIES · 6 SECTORS
+          </span>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: "10px", color: "var(--text-faint)", letterSpacing: "0.1em" }}>
+            DATA AS OF
+          </div>
+          <div style={{ fontSize: "12px", color: "var(--primary)", fontVariantNumeric: "tabular-nums" }}>
+            {asOf}
+          </div>
+        </div>
+      </header>
 
-      <footer className="text-xs text-neutral-700 text-center pt-8 border-t border-neutral-800 mt-4">
-        Data sourced from Yahoo Finance (prices, news) and SEC EDGAR. Not financial advice.
-        Transcripts manually curated.
-      </footer>
-    </main>
+      {/* ── Main ────────────────────────────────────────────────────────────── */}
+      <main style={{ maxWidth: "1600px", margin: "0 auto", padding: "32px" }}>
+        {SUB_THEME_ORDER.map((theme) => {
+          const themeCompanies = grouped.get(theme) ?? [];
+          const themeData = themeCompanies.map((c) => dataByTicker[c.ticker]).filter(Boolean);
+          if (themeData.length === 0) return null;
+          return <ThemeSection key={theme} theme={theme} companies={themeData} />;
+        })}
+
+        <footer style={{
+          marginTop: "48px",
+          paddingTop: "16px",
+          borderTop: "1px solid var(--border)",
+          fontSize: "10px",
+          color: "var(--text-faint)",
+          letterSpacing: "0.06em",
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "8px",
+        }}>
+          <span>DATA · YAHOO FINANCE · SEC EDGAR · TRANSCRIPTS MANUALLY CURATED</span>
+          <span>NOT FINANCIAL ADVICE</span>
+        </footer>
+      </main>
+    </div>
   );
 }
