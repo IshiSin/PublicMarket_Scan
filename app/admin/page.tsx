@@ -352,18 +352,28 @@ export default function AdminPage() {
           )}
 
           {activeEvent && activeEvent.transcript_status === "published" && (
-            <div className="border border-emerald-900 rounded p-3 text-xs text-emerald-400">
-              Transcript already published for {activeEvent.ticker} {activeEvent.fiscal_quarter}.
-              {activeEvent.transcript_source_url && (
-                <a
-                  href={activeEvent.transcript_source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-2 underline text-emerald-300"
-                >
-                  View source →
-                </a>
-              )}
+            <div className="space-y-3">
+              <div className="border border-emerald-900 rounded p-3 text-xs text-emerald-400 flex items-center justify-between">
+                <span>
+                  Published
+                  {activeEvent.transcript_source_url && (
+                    <a
+                      href={activeEvent.transcript_source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 underline text-emerald-300"
+                    >
+                      View source →
+                    </a>
+                  )}
+                </span>
+                <span className="text-neutral-500">Re-ingest below to update</span>
+              </div>
+              <IngestForm
+                key={`${activeEvent.ticker}-${activeEvent.fiscal_quarter}-edit`}
+                event={activeEvent}
+                onDone={loadAllEvents}
+              />
             </div>
           )}
 

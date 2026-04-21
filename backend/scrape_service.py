@@ -1,11 +1,19 @@
 """
 Transcript scraper using curl_cffi (Cloudflare bypass) + BeautifulSoup.
-Works on: investing.com, motleyfool.com, SEC EDGAR, most news sites.
+Supports HTML pages and PDFs.
+Works on: investing.com, motleyfool.com, SEC EDGAR, most news sites, PDF links.
 """
 
+import io
 import logging
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+
+try:
+    import pdfplumber
+    HAS_PDF = True
+except ImportError:
+    HAS_PDF = False
 
 try:
     from curl_cffi import requests as cffi_requests
@@ -105,17 +113,59 @@ def _clean_text(text: str) -> str:
     return "\n".join(cleaned).strip()
 
 
+def _extract_pdf(content: bytes) -> str | None:
+    """Extract text from a PDF file."""
+    if not HAS_PDF:
+        return None
+    try:
+        pages = []
+        with pdfplumber.open(io.BytesIO(content)) as pdf:
+            for page in pdf.pages:
+                text = page.extract_text()
+                if text:
+                    pages.append(text.strip())
+        return "\n\n".join(pages) if pages else None
+    except Exception as e:
+        logger.error("PDF extraction failed: %s", e)
+        return None
+
+
+def _is_pdf_url(url: str) -> bool:
+    path = urlparse(url).path.lower()
+    return path.endswith(".pdf")
+
+
 def scrape_transcript(url: str) -> dict:
     """
     Fetch and extract transcript text from a URL.
-    Returns {"text": str, "url": str} or {"error": str}.
+    Handles both HTML pages and PDF files.
+    Returns {"text": str, "url": str, "char_count": int} or {"error": str}.
     """
     try:
-        html = _fetch_html(url)
-        text = _extract_text(html)
-        if not text:
-            return {"error": "Could not extract article text from this page"}
-        return {"text": text, "url": url, "char_count": len(text)}
+        if _is_pdf_url(url):
+            # Fetch PDF as binary
+            if HAS_CFFI:
+                from curl_cffi import requests as cffi_requests
+                resp = cffi_requests.get(url, impersonate="chrome120", timeout=30)
+                content = resp.content
+            else:
+                import httpx
+                resp = httpx.get(url, timeout=30, follow_redirects=True,
+                                 headers={"User-Agent": "Mozilla/5.0"})
+                content = resp.content
+
+            text = _extract_pdf(content)
+            if not text:
+                return {"error": "Could not extract text from PDF"}
+            return {"text": text, "url": url, "char_count": len(text)}
+
+        else:
+            html = _fetch_html(url)
+            text = _extract_text(html)
+            if not text:
+                return {"error": "Could not extract article text from this page"}
+            return {"text": text, "url": url, "char_count": len(text)}
+
     except Exception as e:
         logger.error("Scrape failed for %s: %s", url, e)
         return {"error": str(e)}
