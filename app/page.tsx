@@ -196,7 +196,7 @@ export default async function DashboardPage() {
             textShadow: "var(--glow)",
             margin: 0,
           }}>
-            AI MARKET SCAN
+            AI PUBLIC MARKET MONITOR
           </h1>
           <span style={{ fontSize: "10px", color: "var(--text-faint)", letterSpacing: "0.1em" }}>
             {companies.length} COMPANIES · 6 SECTORS
