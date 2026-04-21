@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 from yfinance_service import get_quotes, get_financials
 from news_service import get_news
+from scrape_service import scrape_transcript
 
 load_dotenv()
 
@@ -49,3 +50,10 @@ def financials_endpoint(ticker: str = Query(...)):
 @app.get("/news")
 def news_endpoint(ticker: str = Query(...), limit: int = Query(5, ge=1, le=20)):
     return get_news(ticker.strip().upper(), limit=limit)
+
+
+@app.get("/scrape")
+def scrape_endpoint(url: str = Query(..., description="URL to scrape transcript from")):
+    if not url.startswith("http"):
+        raise HTTPException(status_code=400, detail="Invalid URL")
+    return scrape_transcript(url)

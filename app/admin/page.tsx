@@ -62,7 +62,26 @@ function IngestForm({ event, onDone }: { event: EarningsEvent; onDone: () => voi
   const [text, setText] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [scraping, setScraping] = useState(false);
   const [error, setError] = useState("");
+  const [scrapeUrl, setScrapeUrl] = useState("");
+
+  async function fetchFromUrl() {
+    if (!scrapeUrl.trim()) return;
+    setScraping(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/scrape?url=${encodeURIComponent(scrapeUrl)}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setText(data.text);
+      setSourceUrl(scrapeUrl);
+    } catch (e) {
+      setError(`Fetch failed: ${String(e)}`);
+    } finally {
+      setScraping(false);
+    }
+  }
 
   async function submit(action: "ingest" | "unavailable") {
     setLoading(true);
@@ -114,11 +133,29 @@ function IngestForm({ event, onDone }: { event: EarningsEvent; onDone: () => voi
         </button>
       </div>
 
+      {/* URL fetch */}
+      <div style={{ display: "flex", gap: "8px" }}>
+        <input
+          type="url"
+          value={scrapeUrl}
+          onChange={(e) => setScrapeUrl(e.target.value)}
+          placeholder="Paste URL to auto-fetch transcript (investing.com, fool.com, etc.)"
+          className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-600"
+        />
+        <button
+          onClick={fetchFromUrl}
+          disabled={scraping || !scrapeUrl.trim()}
+          className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-4 py-2 rounded whitespace-nowrap disabled:opacity-50"
+        >
+          {scraping ? "Fetching…" : "Fetch"}
+        </button>
+      </div>
+
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Paste raw transcript text here…"
-        rows={8}
+        placeholder="Transcript text will appear here after fetching, or paste manually…"
+        rows={10}
         className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 font-mono focus:outline-none focus:border-neutral-600 resize-y"
       />
 
@@ -126,7 +163,7 @@ function IngestForm({ event, onDone }: { event: EarningsEvent; onDone: () => voi
         type="url"
         value={sourceUrl}
         onChange={(e) => setSourceUrl(e.target.value)}
-        placeholder="Transcript source URL (optional)"
+        placeholder="Source URL (auto-filled after fetch, or enter manually)"
         className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-600"
       />
 
