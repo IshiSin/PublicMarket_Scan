@@ -95,32 +95,47 @@ export default function EarningsTimeline({
                 <Beat actual={ev.eps_actual} estimate={ev.eps_estimate} />
               </div>
               <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                {ev.transcript_status !== "published" ? (
-                  <a href={irUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-                    <span style={{
-                      fontSize: "9px", letterSpacing: "0.08em",
-                      padding: "2px 5px", background: st.bg, color: st.color,
-                    }}>
-                      {st.label}
-                    </span>
-                  </a>
-                ) : (
+                {/* Status badge — clickable link for all states */}
+                <a
+                  href={
+                    ev.transcript_status === "published" && ev.transcript_source_url
+                      ? ev.transcript_source_url
+                      : irUrl
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "none" }}
+                  title={
+                    ev.transcript_status === "published" && ev.transcript_source_url
+                      ? "View transcript source"
+                      : "View investor relations page"
+                  }
+                >
                   <span style={{
                     fontSize: "9px", letterSpacing: "0.08em",
-                    padding: "2px 5px", background: st.bg, color: st.color,
+                    padding: "2px 6px", background: st.bg, color: st.color,
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                    textDecorationStyle: "dotted",
                   }}>
-                    {st.label}
+                    {st.label} ↗
                   </span>
-                )}
+                </a>
+
+                {/* AI Notes toggle — only when summary exists */}
                 {ev.transcript_status === "published" && ev.ai_summary && (
                   <button
                     onClick={() => setExpanded(isExp ? null : key)}
                     style={{
-                      fontSize: "9px", color: "var(--primary-dim)", background: "none",
-                      border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.06em",
+                      fontSize: "9px", letterSpacing: "0.06em",
+                      padding: "2px 6px",
+                      background: isExp ? "rgba(173,255,47,0.15)" : "rgba(173,255,47,0.06)",
+                      color: "var(--primary)",
+                      border: "1px solid var(--border-hi)",
+                      cursor: "pointer",
                     }}
                   >
-                    {isExp ? "COLLAPSE" : "AI NOTES"}
+                    {isExp ? "▲ HIDE" : "▼ AI NOTES"}
                   </button>
                 )}
               </div>

@@ -20,11 +20,8 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: pw }),
       });
-      if (res.ok) {
-        onLogin();
-      } else {
-        setError("Invalid password");
-      }
+      if (res.ok) onLogin();
+      else setError("Invalid password");
     } catch {
       setError("Network error");
     } finally {
@@ -58,7 +55,13 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
 
 // ── Ingest Form ───────────────────────────────────────────────────────────────
 
-function IngestForm({ event, onDone }: { event: EarningsEvent; onDone: () => void }) {
+function IngestForm({
+  event,
+  onDone,
+}: {
+  event: EarningsEvent;
+  onDone: () => void;
+}) {
   const [text, setText] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -111,19 +114,51 @@ function IngestForm({ event, onDone }: { event: EarningsEvent; onDone: () => voi
   }
 
   return (
-    <div className="border border-neutral-800 rounded p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="text-sm font-bold text-white">{event.ticker}</span>
-          <span className="text-xs text-neutral-500 ml-2">{event.fiscal_quarter}</span>
-          <span className="text-xs text-neutral-600 ml-2">
-            {new Date(event.report_date).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
-        </div>
+    <div className="space-y-3">
+      {/* URL fetch */}
+      <div className="flex gap-2">
+        <input
+          type="url"
+          value={scrapeUrl}
+          onChange={(e) => setScrapeUrl(e.target.value)}
+          placeholder="Paste URL to auto-fetch (investing.com, fool.com, etc.)"
+          className="flex-1 bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-600"
+        />
+        <button
+          onClick={fetchFromUrl}
+          disabled={scraping || !scrapeUrl.trim()}
+          className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-4 py-2 rounded whitespace-nowrap disabled:opacity-50"
+        >
+          {scraping ? "Fetching…" : "Fetch from URL"}
+        </button>
+      </div>
+
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Transcript text appears here after fetching — or paste manually"
+        rows={12}
+        className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 font-mono focus:outline-none focus:border-neutral-600 resize-y"
+      />
+
+      <input
+        type="url"
+        value={sourceUrl}
+        onChange={(e) => setSourceUrl(e.target.value)}
+        placeholder="Source URL (auto-filled after fetch, or paste manually)"
+        className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-600"
+      />
+
+      {error && <p className="text-xs text-red-400">{error}</p>}
+
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => submit("ingest")}
+          disabled={loading || !text.trim()}
+          className="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded disabled:opacity-50"
+        >
+          {loading ? "Saving…" : "Save + extract AI summary"}
+        </button>
         <button
           onClick={() => submit("unavailable")}
           disabled={loading}
@@ -132,70 +167,28 @@ function IngestForm({ event, onDone }: { event: EarningsEvent; onDone: () => voi
           Mark unavailable
         </button>
       </div>
-
-      {/* URL fetch */}
-      <div style={{ display: "flex", gap: "8px" }}>
-        <input
-          type="url"
-          value={scrapeUrl}
-          onChange={(e) => setScrapeUrl(e.target.value)}
-          placeholder="Paste URL to auto-fetch transcript (investing.com, fool.com, etc.)"
-          className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-600"
-        />
-        <button
-          onClick={fetchFromUrl}
-          disabled={scraping || !scrapeUrl.trim()}
-          className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs px-4 py-2 rounded whitespace-nowrap disabled:opacity-50"
-        >
-          {scraping ? "Fetching…" : "Fetch"}
-        </button>
-      </div>
-
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Transcript text will appear here after fetching, or paste manually…"
-        rows={10}
-        className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 font-mono focus:outline-none focus:border-neutral-600 resize-y"
-      />
-
-      <input
-        type="url"
-        value={sourceUrl}
-        onChange={(e) => setSourceUrl(e.target.value)}
-        placeholder="Source URL (auto-filled after fetch, or enter manually)"
-        className="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-600"
-      />
-
-      {error && <p className="text-xs text-red-400">{error}</p>}
-
-      <button
-        onClick={() => submit("ingest")}
-        disabled={loading || !text.trim()}
-        className="bg-emerald-800 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded disabled:opacity-50"
-      >
-        {loading ? "Saving…" : "Save transcript + extract AI summary"}
-      </button>
     </div>
   );
 }
 
-// ── Admin Page ─────────────────────────────────────────────────────────────────
+// ── Admin Page ────────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
-  const [events, setEvents] = useState<EarningsEvent[]>([]);
+  const [allEvents, setAllEvents] = useState<EarningsEvent[]>([]);
   const [loading, setLoading] = useState(false);
 
-  async function loadPendingEvents() {
+  // Selection state
+  const [selectedTicker, setSelectedTicker] = useState<string>("");
+  const [selectedQuarter, setSelectedQuarter] = useState<string>("");
+
+  async function loadAllEvents() {
     setLoading(true);
     try {
-      // Load companies list via API route and fetch events per ticker
       const companiesRes = await fetch("/api/companies").catch(() => null);
       if (!companiesRes) return;
-
       const companies = await companiesRes.json().catch(() => []);
-      const allEvents: EarningsEvent[] = [];
+      const events: EarningsEvent[] = [];
 
       await Promise.all(
         companies.map(async (c: { ticker: string }) => {
@@ -203,57 +196,186 @@ export default function AdminPage() {
             const res = await fetch(`/api/events?ticker=${c.ticker}`);
             if (res.ok) {
               const evs: EarningsEvent[] = await res.json();
-              allEvents.push(...evs.filter((e) => e.transcript_status === "pending"));
+              // Show pending + published (so you can see what's done)
+              events.push(...evs);
             }
           } catch {}
         })
       );
 
-      allEvents.sort(
+      events.sort(
         (a, b) => new Date(b.report_date).getTime() - new Date(a.report_date).getTime()
       );
-      setEvents(allEvents);
+      setAllEvents(events);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    if (authed) loadPendingEvents();
+    if (authed) loadAllEvents();
   }, [authed]);
 
-  if (!authed) {
-    return <LoginForm onLogin={() => setAuthed(true)} />;
+  if (!authed) return <LoginForm onLogin={() => setAuthed(true)} />;
+
+  // Unique tickers that have pending events
+  const pendingEvents = allEvents.filter((e) => e.transcript_status === "pending");
+  const tickers = [...new Set(pendingEvents.map((e) => e.ticker))].sort();
+
+  // Quarters for selected ticker
+  const quartersForTicker = pendingEvents
+    .filter((e) => e.ticker === selectedTicker)
+    .map((e) => e.fiscal_quarter)
+    .sort()
+    .reverse();
+
+  // The active event
+  const activeEvent = allEvents.find(
+    (e) => e.ticker === selectedTicker && e.fiscal_quarter === selectedQuarter
+  );
+
+  function handleTickerChange(ticker: string) {
+    setSelectedTicker(ticker);
+    // Auto-select most recent quarter for this ticker
+    const quarters = pendingEvents
+      .filter((e) => e.ticker === ticker)
+      .map((e) => e.fiscal_quarter)
+      .sort()
+      .reverse();
+    setSelectedQuarter(quarters[0] ?? "");
   }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
-        <h1 className="text-sm font-bold text-white">Transcript Ingestion</h1>
+        <div>
+          <h1 className="text-sm font-bold text-white">Transcript Ingestion</h1>
+          <p className="text-xs text-neutral-500 mt-0.5">
+            {pendingEvents.length} pending · {allEvents.filter((e) => e.transcript_status === "published").length} published
+          </p>
+        </div>
         <a href="/" className="text-xs text-neutral-500 hover:text-neutral-300">
           ← Dashboard
         </a>
       </div>
 
-      {loading && <p className="text-xs text-neutral-500">Loading pending events…</p>}
+      {loading && <p className="text-xs text-neutral-500">Loading events…</p>}
 
-      {!loading && events.length === 0 && (
+      {!loading && pendingEvents.length === 0 && (
         <p className="text-xs text-neutral-600">No pending transcripts.</p>
       )}
 
-      {events.map((ev) => (
-        <IngestForm
-          key={`${ev.ticker}-${ev.fiscal_quarter}`}
-          event={ev}
-          onDone={() => {
-            setEvents((prev) =>
-              prev.filter(
-                (e) => !(e.ticker === ev.ticker && e.fiscal_quarter === ev.fiscal_quarter)
-              )
-            );
-          }}
-        />
-      ))}
+      {!loading && pendingEvents.length > 0 && (
+        <>
+          {/* ── Selectors ── */}
+          <div className="flex gap-3">
+            {/* Ticker picker */}
+            <div className="flex-1">
+              <label className="text-xs text-neutral-500 block mb-1">Company</label>
+              <select
+                value={selectedTicker}
+                onChange={(e) => handleTickerChange(e.target.value)}
+                className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-neutral-500"
+              >
+                <option value="">— select company —</option>
+                {tickers.map((t) => {
+                  const count = pendingEvents.filter((e) => e.ticker === t).length;
+                  return (
+                    <option key={t} value={t}>
+                      {t} ({count} pending)
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {/* Quarter picker */}
+            <div className="flex-1">
+              <label className="text-xs text-neutral-500 block mb-1">Quarter</label>
+              <select
+                value={selectedQuarter}
+                onChange={(e) => setSelectedQuarter(e.target.value)}
+                disabled={!selectedTicker}
+                className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-neutral-500 disabled:opacity-40"
+              >
+                <option value="">— select quarter —</option>
+                {quartersForTicker.map((q) => (
+                  <option key={q} value={q}>
+                    {q}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* ── Active event summary ── */}
+          {activeEvent && (
+            <div className="border border-neutral-800 rounded p-3 text-xs text-neutral-400 flex gap-6">
+              <span>
+                <span className="text-neutral-600">Report date</span>{" "}
+                {new Date(activeEvent.report_date).toLocaleDateString("en-US", {
+                  month: "short", day: "numeric", year: "numeric",
+                })}
+              </span>
+              <span>
+                <span className="text-neutral-600">EPS actual</span>{" "}
+                {activeEvent.eps_actual ?? "—"}
+              </span>
+              <span>
+                <span className="text-neutral-600">EPS est</span>{" "}
+                {activeEvent.eps_estimate ?? "—"}
+              </span>
+              <span>
+                <span className="text-neutral-600">Status</span>{" "}
+                <span className={
+                  activeEvent.transcript_status === "published" ? "text-emerald-400" :
+                  activeEvent.transcript_status === "pending"   ? "text-yellow-400" :
+                  "text-neutral-500"
+                }>
+                  {activeEvent.transcript_status}
+                </span>
+              </span>
+            </div>
+          )}
+
+          {/* ── Ingest form ── */}
+          {activeEvent && activeEvent.transcript_status === "pending" && (
+            <IngestForm
+              key={`${activeEvent.ticker}-${activeEvent.fiscal_quarter}`}
+              event={activeEvent}
+              onDone={() => {
+                loadAllEvents(); // refresh list after save
+                setSelectedQuarter("");
+              }}
+            />
+          )}
+
+          {activeEvent && activeEvent.transcript_status === "published" && (
+            <div className="border border-emerald-900 rounded p-3 text-xs text-emerald-400">
+              Transcript already published for {activeEvent.ticker} {activeEvent.fiscal_quarter}.
+              {activeEvent.transcript_source_url && (
+                <a
+                  href={activeEvent.transcript_source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 underline text-emerald-300"
+                >
+                  View source →
+                </a>
+              )}
+            </div>
+          )}
+
+          {!activeEvent && selectedTicker && selectedQuarter && (
+            <p className="text-xs text-neutral-600">No event found for {selectedTicker} {selectedQuarter}.</p>
+          )}
+
+          {!selectedTicker && (
+            <p className="text-xs text-neutral-600">Select a company and quarter above to begin.</p>
+          )}
+        </>
+      )}
     </div>
   );
 }
