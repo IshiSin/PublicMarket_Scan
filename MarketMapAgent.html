@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market map agent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin .75s linear infinite; }
+  </style>
+</head>
+<body class="bg-white min-h-screen">
+
+<div id="app"></div>
+
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+// All application state lives in this single object — no localStorage/sessionStorage.
+const S = {
+  apiKey:  '',
+  view:    'key',   // key | form | loading | results | error
+  name:    '',
+  desc:    '',
+  data:    null,
+  error:   '',
+  raw:     '',
+  sortKey: 'funding_usd',
+  sortDir: 'desc',
+};
+
+let _loadingTimer = null;  // setInterval handle for cycling loading messages
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const STAGE_COLORS = {
+  'pre-seed': '#7F77DD', 'seed':     '#7F77DD',
+  'series-a': '#1D9E75', 'series-b': '#1D9E75',
+  'series-c': '#BA7517', 'public':   '#BA7517',
+  'unknown':  '#888780',
+};
+const TC = '#D85A30'; // target company colour
+
+const LOAD_MSGS = [
+  'Searching for competitors\u2026',
+  'Pulling funding data\u2026',
+  'Mapping the landscape\u2026',
+  'Building your market map\u2026',
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const stageColor = s => STAGE_COLORS[(s || '').toLowerCase()] || '#888780';
+
+function fmtFunding(usd) {
+  if (!usd || usd === 0) return 'Undisclosed';
+  if (usd >= 1000) return '$' + (usd / 1000).toFixed(1).replace(/\.0$/, '') + 'bn';
+  return '$' + Math.round(usd) + 'm';
+}
+
+const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+const trunc = (s, n) => !s ? '' : s.length > n ? s.slice(0, n - 1) + '\u2026' : s;
+
+// Escape HTML entities to prevent XSS when injecting strings into innerHTML
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function stagePill(stage, isTarget) {
+  const bg  = isTarget ? TC : stageColor(stage);
+  const lbl = isTarget ? 'target' : (stage || 'unknown');
+  return `<span style="background:${bg}" class="inline-block px-2 py-0.5 rounded-full text-white text-xs font-medium whitespace-nowrap">${lbl}</span>`;
+}
+
+// ── View engine ───────────────────────────────────────────────────────────────
+function setView(name) {
+  // Stop any in-flight timers before switching
+  if (_loadingTimer) { clearInterval(_loadingTimer); _loadingTimer = null; }
+  S.view = name;
+  render();
+}
+
+function render() {
+  const app = document.getElementById('app');
+  switch (S.view) {
+    case 'key':     app.innerHTML = tmplKey();     bindKey();     break;
+    case 'form':    app.innerHTML = tmplForm();    bindForm();    break;
+    case 'loading': app.innerHTML = tmplLoading(); startLoading(); break;
+    case 'results': app.innerHTML = tmplResults(); afterResults(); break;
+    case 'error':   app.innerHTML = tmplError();   bindError();   break;
+  }
+}
+
+// Shared "Change API key" button rendered in the top-right corner of all
+// post-key-entry views. Uses an inline onclick calling global helpers.
+function changeKeyBtn() {
+  return `<button
+    onclick="S.apiKey='';setView('key')"
+    class="absolute top-4 right-4 text-xs text-gray-400 hover:text-gray-600 underline z-10">
+    Change API key
+  </button>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// View 0 — API key entry
+// ─────────────────────────────────────────────────────────────────────────────
+function tmplKey() {
+  return `
+  <div class="min-h-screen bg-white flex items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+      <div class="mb-8">
+        <h1 class="text-2xl font-semibold text-gray-900 tracking-tight">Market map agent</h1>
+        <p class="text-sm text-gray-500 mt-1">Enter your Google AI API key to get started.</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Google AI API key</label>
+        <input id="keyInput" type="password" placeholder="AIzaSy\u2026" autocomplete="off"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        <div class="mt-1.5 mb-5">
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer"
+             class="text-xs text-blue-600 hover:underline">
+            Get a free key at aistudio.google.com &rarr;
+          </a>
+        </div>
+        <button id="saveKeyBtn"
+          class="w-full px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg
+                 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          Save key
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function bindKey() {
+  const input = document.getElementById('keyInput');
+  const btn   = document.getElementById('saveKeyBtn');
+  input.focus();
+  const save = () => { const v = input.value.trim(); if (v) { S.apiKey = v; setView('form'); } };
+  input.addEventListener('keydown', e => e.key === 'Enter' && save());
+  btn.addEventListener('click', save);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// View 1 — Company name + description form
+// ─────────────────────────────────────────────────────────────────────────────
+function tmplForm() {
+  return `
+  <div class="min-h-screen bg-white relative flex items-center justify-center px-4">
+    ${changeKeyBtn()}
+    <div class="w-full max-w-sm">
+      <div class="mb-8">
+        <h1 class="text-2xl font-semibold text-gray-900 tracking-tight">Market map agent</h1>
+        <p class="text-sm text-gray-500 mt-1">Map your competitive landscape.</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Company name</label>
+          <input id="nameInput" type="text" placeholder="e.g. Acme AI" value="${esc(S.name)}"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+        <div class="mb-5">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">One-line description</label>
+          <input id="descInput" type="text" placeholder="e.g. AI-powered legal review for SMBs"
+            value="${esc(S.desc)}"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+        <button id="genBtn"
+          class="w-full px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg
+                 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          Generate market map
+        </button>
+        <p class="text-xs text-gray-400 text-center mt-3">
+          Powered by Gemini 2.5 Flash.
+        </p>
+      </div>
+    </div>
+  </div>`;
+}
+
+function bindForm() {
+  const nameEl = document.getElementById('nameInput');
+  const descEl = document.getElementById('descInput');
+  const btn    = document.getElementById('genBtn');
+  nameEl.focus();
+  const go = () => {
+    const n = nameEl.value.trim(), d = descEl.value.trim();
+    if (!n || !d) return;
+    S.name = n; S.desc = d;
+    runQuery();
+  };
+  descEl.addEventListener('keydown', e => e.key === 'Enter' && go());
+  btn.addEventListener('click', go);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// View 2 — Loading panel with cycling messages
+// ─────────────────────────────────────────────────────────────────────────────
+function tmplLoading() {
+  return `
+  <div class="min-h-screen bg-white relative flex flex-col items-center justify-center px-4">
+    ${changeKeyBtn()}
+    <div class="w-8 h-8 rounded-full border-2 border-gray-900 border-t-transparent spin mb-5"></div>
+    <p id="loadMsg" class="text-sm font-medium text-gray-700">${LOAD_MSGS[0]}</p>
+    <p class="text-xs text-gray-400 mt-1.5">This usually takes about 15 seconds</p>
+  </div>`;
+}
+
+function startLoading() {
+  let idx = 0;
+  _loadingTimer = setInterval(() => {
+    idx = (idx + 1) % LOAD_MSGS.length;
+    const el = document.getElementById('loadMsg');
+    if (el) el.textContent = LOAD_MSGS[idx];
+  }, 4000);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// View 3 — Results: bubble chart + header bar + competitor table
+// ─────────────────────────────────────────────────────────────────────────────
+function tmplResults() {
+  return `
+  <div class="min-h-screen bg-white relative">
+    ${changeKeyBtn()}
+    <div class="max-w-6xl mx-auto px-4 pt-8 pb-12">
+
+      <!-- Header bar -->
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-gray-900 truncate mr-4">
+          ${esc(S.data.market_title || 'Competitive landscape')}
+        </h2>
+        <div class="flex items-center gap-3 shrink-0">
+          <button id="newSearchBtn"
+            class="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+            &larr; New search
+          </button>
+          <button id="refreshBtn"
+            class="text-sm bg-gray-900 text-white px-3 py-1.5 rounded-lg
+                   hover:bg-gray-800 transition-colors">
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Competitor table -->
+      <div id="tableWrap">
+        ${buildTableHtml()}
+      </div>
+
+    </div>
+  </div>`;
+}
+
+function afterResults() {
+  document.getElementById('newSearchBtn').addEventListener('click', () => setView('form'));
+  document.getElementById('refreshBtn').addEventListener('click', runQuery);
+  bindTableSort();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Competitor table HTML + sort binding
+// ─────────────────────────────────────────────────────────────────────────────
+function buildTableHtml() {
+  const { competitors = [], target_company } = S.data;
+
+  // Funding note when >50% of competitors have no data
+  const undisclosed = competitors.filter(c => !c.funding_usd || c.funding_usd === 0).length;
+  const showNote    = competitors.length > 3 && undisclosed / competitors.length > 0.5;
+
+  const sorted = [...competitors].sort((a, b) => {
+    let av = a[S.sortKey] ?? '', bv = b[S.sortKey] ?? '';
+    if (typeof av === 'string') av = av.toLowerCase();
+    if (typeof bv === 'string') bv = bv.toLowerCase();
+    if (av < bv) return S.sortDir === 'asc' ? -1 : 1;
+    if (av > bv) return S.sortDir === 'asc' ?  1 : -1;
+    return 0;
+  });
+
+  const arrow = col => {
+    if (S.sortKey !== col) return '<span class="ml-1 font-normal text-gray-300">\u2195</span>';
+    return `<span class="ml-1 font-normal text-gray-700">${S.sortDir === 'asc' ? '\u2191' : '\u2193'}</span>`;
+  };
+
+  const TH  = 'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide select-none whitespace-nowrap cursor-pointer hover:text-gray-800';
+  const THN = 'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide select-none whitespace-nowrap';
+
+  // Target company pinned to first row with light coral tint
+  const targetRow = target_company ? `
+    <tr style="background:#fff5f2">
+      <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
+        ${esc(target_company.name)}
+        <span class="ml-1.5 text-xs font-normal text-gray-400">(your company)</span>
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap">${stagePill('', true)}</td>
+      <td class="px-4 py-3 text-gray-600 whitespace-nowrap">&mdash;</td>
+      <td class="px-4 py-3 text-gray-600 whitespace-nowrap">&mdash;</td>
+      <td class="px-4 py-3 text-gray-500">${esc(target_company.description || '\u2014')}</td>
+    </tr>` : '';
+
+  const rows = sorted.map(c => `
+    <tr class="border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
+      <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">${esc(c.name || '\u2014')}</td>
+      <td class="px-4 py-3 whitespace-nowrap">${stagePill(c.stage, false)}</td>
+      <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${fmtFunding(c.funding_usd)}</td>
+      <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${esc(c.hq || '\u2014')}</td>
+      <td class="px-4 py-3 text-gray-500">${esc(c.description || '\u2014')}</td>
+    </tr>`).join('');
+
+  return `
+    ${showNote ? '<p class="text-xs text-amber-600 mb-2.5 pl-0.5">Funding data may be incomplete &mdash; verify on Crunchbase.</p>' : ''}
+    <div class="overflow-x-auto rounded-xl border border-gray-200">
+      <table class="w-full text-sm min-w-[580px]">
+        <thead>
+          <tr class="bg-gray-50 border-b border-gray-200">
+            <th data-sort="name"        class="${TH}">Company ${arrow('name')}</th>
+            <th data-sort="stage"       class="${TH}">Stage ${arrow('stage')}</th>
+            <th data-sort="funding_usd" class="${TH}">Total raised ${arrow('funding_usd')}</th>
+            <th data-sort="hq"          class="${TH}">HQ ${arrow('hq')}</th>
+            <th class="${THN}">Notes</th>
+          </tr>
+        </thead>
+        <tbody>${targetRow}${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function bindTableSort() {
+  const tw = document.getElementById('tableWrap');
+  if (!tw || tw._sortBound) return; // prevent duplicate listeners on same element
+  tw._sortBound = true;
+  tw.addEventListener('click', e => {
+    const th = e.target.closest('[data-sort]');
+    if (!th) return;
+    const key = th.dataset.sort;
+    if (key === S.sortKey) S.sortDir = S.sortDir === 'asc' ? 'desc' : 'asc';
+    else { S.sortKey = key; S.sortDir = 'desc'; }
+    // innerHTML replacement preserves the event listener on tw itself
+    tw.innerHTML = buildTableHtml();
+  });
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// View — Error state
+// ─────────────────────────────────────────────────────────────────────────────
+function tmplError() {
+  const rawBlock = S.raw
+    ? `<pre class="bg-white border border-red-100 rounded-lg p-3 text-xs text-gray-600
+                   overflow-auto max-h-52 whitespace-pre-wrap font-mono mb-4">${esc(S.raw)}</pre>`
+    : '';
+  return `
+  <div class="min-h-screen bg-white relative flex items-center justify-center px-4">
+    ${changeKeyBtn()}
+    <div class="w-full max-w-xl">
+      <div class="bg-red-50 border border-red-200 rounded-2xl p-6">
+        <p class="text-sm font-semibold text-red-700 mb-1">Something went wrong</p>
+        <p class="text-sm text-red-600 mb-4">${esc(S.error)}</p>
+        ${rawBlock}
+        <button id="retryBtn"
+          class="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg
+                 hover:bg-gray-800 transition-colors">
+          Try again
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function bindError() {
+  document.getElementById('retryBtn').addEventListener('click', runQuery);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Gemini API call — Google AI generateContent format.
+// Model: gemini-2.5-flash. API key passed as a query parameter.
+// System instruction sets the JSON-only persona; user content carries the prompt.
+// Response text is in candidates[0].content.parts[0].text.
+// Any accidental ```json fences are stripped before JSON.parse().
+// ─────────────────────────────────────────────────────────────────────────────
+async function runQuery() {
+  // Guard: if the key was never saved (or was cleared), send back to key entry.
+  const key = S.apiKey.trim();
+  if (!key) { setView('key'); return; }
+
+  setView('loading');
+
+  const userPrompt =
+`Research the competitive landscape for this company: ${S.name} \u2014 ${S.desc}.
+
+Step 1: Derive the precise, specific market niche from the company description. For example: "AI-powered demos" → "interactive product demo software"; "AI making demos" → "AI demo creation tools". Use this specific niche label (not the raw input) in all searches below.
+
+Step 2: You have access to Google Search. Using the specific niche label you derived, perform ALL of the following searches and synthesize every result before generating output:
+1. Search: "${S.name} competitors"
+2. Search: "top funded [specific niche] startups"
+3. Search: "[specific niche] startups funding 2026"
+4. Search: "[specific niche] startups funding 2025"
+5. Search: "[specific niche] startups funding 2024"
+6. Search: "[specific niche] startup funding rounds"
+
+Your goal is comprehensive coverage of all companies in this space. Include startups, private companies, and public companies alike. Rules:
+- Include any company that has raised more than $10M in funding, even if obscure or recently founded
+- Missing a well-funded competitor is a critical failure
+
+Return ONLY a valid JSON object with this exact structure (no markdown, no explanation):
+{
+  "market_title": "short label for this market",
+  "competitors": [
+    {
+      "name": "string",
+      "funding_usd": number (total raised in millions, 0 if unknown),
+      "stage": "pre-seed|seed|series-a|series-b|series-c|public|unknown",
+      "hq": "City, Country",
+      "description": "one sentence"
+    }
+  ],
+  "target_company": {
+    "name": "string",
+    "description": "one sentence"
+  }
+}`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+      {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: 'You are a competitive intelligence analyst for early-stage investors. ' +
+                            'You have deep knowledge of startup funding, market positioning, and ' +
+                            'competitive landscapes. Always respond with raw, valid JSON only — ' +
+                            'no markdown fences, no explanation, no commentary.' }],
+          },
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          tools: [{ googleSearch: {} }],
+          generationConfig: { temperature: 0.2 },
+        }),
+      }
+    );
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      const msg = json?.error?.message || 'HTTP ' + res.status;
+      S.error = res.status === 400 || res.status === 401
+        ? 'Authentication failed \u2014 your Google AI API key was rejected. ' +
+          'Check that you copied it correctly from aistudio.google.com and try again.'
+        : 'API error: ' + msg;
+      S.raw   = JSON.stringify(json, null, 2);
+      setView('error');
+      return;
+    }
+
+    const text = (json?.candidates?.[0]?.content?.parts?.[0]?.text) || '';
+    if (!text) {
+      S.error = 'No text returned. The model may have refused or returned an empty response.';
+      S.raw   = JSON.stringify(json, null, 2);
+      setView('error');
+      return;
+    }
+
+    // Strip accidental markdown fences before parsing
+    const cleaned = text
+      .replace(/^```json\s*/i, '')
+      .replace(/^```\s*/i,     '')
+      .replace(/```\s*$/i,     '')
+      .trim();
+
+    try {
+      S.data = JSON.parse(cleaned);
+    } catch (_) {
+      S.error = "Couldn\u2019t parse response \u2014 the model returned invalid JSON.";
+      S.raw   = text;
+      setView('error');
+      return;
+    }
+
+    setView('results');
+
+  } catch (err) {
+    S.error = 'Network error: ' + err.message;
+    S.raw   = '';
+    setView('error');
+  }
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>

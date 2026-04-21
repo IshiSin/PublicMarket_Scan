@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/ishisinghal/.claude/**)",
+      "Read(//private/tmp/**)",
+      "Bash(cp /Users/ishisinghal/Downloads/transcript-splitter.skill transcript-splitter.zip)",
+      "Bash(unzip -o transcript-splitter.zip -d transcript-splitter-extracted)",
+      "Bash(gh auth *)",
+      "Bash(mkdir -p /Users/ishisinghal/podcast_transcript_splitter)",
+      "Bash(cp /tmp/transcript-splitter-extracted/transcript-splitter/SKILL.md /Users/ishisinghal/podcast_transcript_splitter/SKILL.md)",
+      "Bash(mkdir -p ~/.claude/skills)",
+      "Bash(cp ~/Downloads/SKILL.md ~/.claude/skills/frontend-design.md)",
+      "Bash(mkdir -p ~/.claude/skills/frontend-design)",
+      "Bash(mv ~/.claude/skills/frontend-design.md ~/.claude/skills/frontend-design/SKILL.md)",
+      "WebSearch",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npx next *)",
+      "Bash(sed -i '' 's/import type { NextConfig } from \"next\";//' /Users/ishisinghal/market_map_agent/next.config.mjs)",
+      "Bash(sed -i '' 's/const nextConfig: NextConfig = {/const nextConfig = {/' /Users/ishisinghal/market_map_agent/next.config.mjs)",
+      "Bash(python scripts/detect_new_earnings.py)",
+      "Bash(python3 scripts/detect_new_earnings.py)"
+    ]
+  }
+}

@@ -1,0 +1,218 @@
+[
+  {
+    "ticker": "MSFT",
+    "name": "Microsoft",
+    "sub_theme": "hyperscalers",
+    "exchange": "NASDAQ",
+    "cik": "0000789019",
+    "ir_url": "https://www.microsoft.com/en-us/investor"
+  },
+  {
+    "ticker": "GOOGL",
+    "name": "Alphabet",
+    "sub_theme": "hyperscalers",
+    "exchange": "NASDAQ",
+    "cik": "0001652044",
+    "ir_url": "https://abc.xyz/investor"
+  },
+  {
+    "ticker": "AMZN",
+    "name": "Amazon",
+    "sub_theme": "hyperscalers",
+    "exchange": "NASDAQ",
+    "cik": "0001018724",
+    "ir_url": "https://ir.aboutamazon.com"
+  },
+  {
+    "ticker": "META",
+    "name": "Meta Platforms",
+    "sub_theme": "hyperscalers",
+    "exchange": "NASDAQ",
+    "cik": "0001326801",
+    "ir_url": "https://investor.atmeta.com"
+  },
+  {
+    "ticker": "ORCL",
+    "name": "Oracle",
+    "sub_theme": "hyperscalers",
+    "exchange": "NYSE",
+    "cik": "0001341439",
+    "ir_url": "https://investor.oracle.com"
+  },
+  {
+    "ticker": "CRWV",
+    "name": "CoreWeave",
+    "sub_theme": "neoclouds",
+    "exchange": "NASDAQ",
+    "cik": "0001769628",
+    "ir_url": "https://investors.coreweave.com"
+  },
+  {
+    "ticker": "NBIS",
+    "name": "Nebius Group",
+    "sub_theme": "neoclouds",
+    "exchange": "NASDAQ",
+    "cik": "0001513845",
+    "ir_url": "https://nebius.com/investor-hub"
+  },
+  {
+    "ticker": "APLD",
+    "name": "Applied Digital",
+    "sub_theme": "neoclouds",
+    "exchange": "NASDAQ",
+    "cik": "0001144879",
+    "ir_url": "https://ir.applieddigital.com"
+  },
+  {
+    "ticker": "IREN",
+    "name": "Iris Energy",
+    "sub_theme": "neoclouds",
+    "exchange": "NASDAQ",
+    "cik": "0001878848",
+    "ir_url": "https://iren.com/investors"
+  },
+  {
+    "ticker": "BE",
+    "name": "Bloom Energy",
+    "sub_theme": "neoclouds",
+    "exchange": "NYSE",
+    "cik": "0001664703",
+    "ir_url": "https://investors.bloomenergy.com"
+  },
+  {
+    "ticker": "NVDA",
+    "name": "NVIDIA",
+    "sub_theme": "semis_compute",
+    "exchange": "NASDAQ",
+    "cik": "0001045810",
+    "ir_url": "https://investor.nvidia.com"
+  },
+  {
+    "ticker": "AMD",
+    "name": "Advanced Micro Devices",
+    "sub_theme": "semis_compute",
+    "exchange": "NASDAQ",
+    "cik": "0000002488",
+    "ir_url": "https://ir.amd.com"
+  },
+  {
+    "ticker": "AVGO",
+    "name": "Broadcom",
+    "sub_theme": "semis_compute",
+    "exchange": "NASDAQ",
+    "cik": "0001730168",
+    "ir_url": "https://investors.broadcom.com"
+  },
+  {
+    "ticker": "MRVL",
+    "name": "Marvell Technology",
+    "sub_theme": "semis_compute",
+    "exchange": "NASDAQ",
+    "cik": "0001835632",
+    "ir_url": "https://investor.marvell.com"
+  },
+  {
+    "ticker": "TSM",
+    "name": "Taiwan Semiconductor",
+    "sub_theme": "semis_fab_equipment",
+    "exchange": "NYSE",
+    "cik": "0001046179",
+    "ir_url": "https://investor.tsmc.com/english"
+  },
+  {
+    "ticker": "ASML",
+    "name": "ASML Holding",
+    "sub_theme": "semis_fab_equipment",
+    "exchange": "NASDAQ",
+    "cik": "0000937966",
+    "ir_url": "https://www.asml.com/en/investors"
+  },
+  {
+    "ticker": "AMAT",
+    "name": "Applied Materials",
+    "sub_theme": "semis_fab_equipment",
+    "exchange": "NASDAQ",
+    "cik": "0000006951",
+    "ir_url": "https://ir.appliedmaterials.com"
+  },
+  {
+    "ticker": "LRCX",
+    "name": "Lam Research",
+    "sub_theme": "semis_fab_equipment",
+    "exchange": "NASDAQ",
+    "cik": "0000707549",
+    "ir_url": "https://investor.lamresearch.com"
+  },
+  {
+    "ticker": "KLAC",
+    "name": "KLA Corporation",
+    "sub_theme": "semis_fab_equipment",
+    "exchange": "NASDAQ",
+    "cik": "0000319201",
+    "ir_url": "https://ir.kla.com"
+  },
+  {
+    "ticker": "TSLA",
+    "name": "Tesla",
+    "sub_theme": "ai_applications",
+    "exchange": "NASDAQ",
+    "cik": "0001318605",
+    "ir_url": "https://ir.tesla.com"
+  },
+  {
+    "ticker": "PLTR",
+    "name": "Palantir Technologies",
+    "sub_theme": "ai_applications",
+    "exchange": "NYSE",
+    "cik": "0001321655",
+    "ir_url": "https://investors.palantir.com"
+  },
+  {
+    "ticker": "CRM",
+    "name": "Salesforce",
+    "sub_theme": "ai_applications",
+    "exchange": "NYSE",
+    "cik": "0001108524",
+    "ir_url": "https://investor.salesforce.com"
+  },
+  {
+    "ticker": "NOW",
+    "name": "ServiceNow",
+    "sub_theme": "ai_applications",
+    "exchange": "NYSE",
+    "cik": "0001373715",
+    "ir_url": "https://investor.servicenow.com"
+  },
+  {
+    "ticker": "SNOW",
+    "name": "Snowflake",
+    "sub_theme": "ai_applications",
+    "exchange": "NYSE",
+    "cik": "0001640147",
+    "ir_url": "https://investors.snowflake.com"
+  },
+  {
+    "ticker": "ADBE",
+    "name": "Adobe",
+    "sub_theme": "ai_applications",
+    "exchange": "NASDAQ",
+    "cik": "0000796343",
+    "ir_url": "https://www.adobe.com/investor-relations"
+  },
+  {
+    "ticker": "BABA",
+    "name": "Alibaba Group",
+    "sub_theme": "international",
+    "exchange": "NYSE",
+    "cik": "0001577552",
+    "ir_url": "https://www.alibabagroup.com/en-US/investor-relations"
+  },
+  {
+    "ticker": "BIDU",
+    "name": "Baidu",
+    "sub_theme": "international",
+    "exchange": "NASDAQ",
+    "cik": "0001329099",
+    "ir_url": "https://ir.baidu.com"
+  }
+]

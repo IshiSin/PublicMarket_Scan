@@ -1,0 +1,58 @@
+name: Detect New Earnings Events
+
+on:
+  schedule:
+    # Run daily at 07:00 UTC (outside US market hours)
+    - cron: "0 7 * * *"
+  workflow_dispatch: {}  # allow manual trigger
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance httpx
+
+      - name: Run earnings detection
+        run: python scripts/detect_new_earnings.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Commit new event files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/events/
+          if git diff --staged --quiet; then
+            echo "No new event files to commit."
+          else
+            NEW_FILES=$(git diff --staged --name-only | tr '\n' ' ')
+            git commit -m "chore: add earnings event placeholders
+
+New events detected by daily cron.
+Files: ${NEW_FILES}
+
+Transcript status: pending — see IR pages for each company."
+            git push
+            echo "Committed and pushed new event files."
+          fi
+
+      - name: Create issue summary if new events found
+        if: success()
+        run: |
+          PENDING=$(find data/events -name "*.json" ! -name "*summary*" ! -name "*transcript*" -exec grep -l '"transcript_status": "pending"' {} \; 2>/dev/null | wc -l)
+          if [ "$PENDING" -gt "0" ]; then
+            echo "Pending transcripts: $PENDING"
+          fi
