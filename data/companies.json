@@ -2,7 +2,7 @@
   {
     "ticker": "MSFT",
     "name": "Microsoft",
-    "sub_theme": "hyperscalers",
+    "sub_theme": "mag7",
     "exchange": "NASDAQ",
     "cik": "0000789019",
     "ir_url": "https://www.microsoft.com/en-us/investor"
@@ -10,7 +10,7 @@
   {
     "ticker": "GOOGL",
     "name": "Alphabet",
-    "sub_theme": "hyperscalers",
+    "sub_theme": "mag7",
     "exchange": "NASDAQ",
     "cik": "0001652044",
     "ir_url": "https://abc.xyz/investor"
@@ -18,7 +18,7 @@
   {
     "ticker": "AMZN",
     "name": "Amazon",
-    "sub_theme": "hyperscalers",
+    "sub_theme": "mag7",
     "exchange": "NASDAQ",
     "cik": "0001018724",
     "ir_url": "https://ir.aboutamazon.com"
@@ -26,66 +26,34 @@
   {
     "ticker": "META",
     "name": "Meta Platforms",
-    "sub_theme": "hyperscalers",
+    "sub_theme": "mag7",
     "exchange": "NASDAQ",
     "cik": "0001326801",
     "ir_url": "https://investor.atmeta.com"
   },
   {
-    "ticker": "ORCL",
-    "name": "Oracle",
-    "sub_theme": "hyperscalers",
-    "exchange": "NYSE",
-    "cik": "0001341439",
-    "ir_url": "https://investor.oracle.com"
-  },
-  {
-    "ticker": "CRWV",
-    "name": "CoreWeave",
-    "sub_theme": "neoclouds",
+    "ticker": "AAPL",
+    "name": "Apple",
+    "sub_theme": "mag7",
     "exchange": "NASDAQ",
-    "cik": "0001769628",
-    "ir_url": "https://investors.coreweave.com"
-  },
-  {
-    "ticker": "NBIS",
-    "name": "Nebius Group",
-    "sub_theme": "neoclouds",
-    "exchange": "NASDAQ",
-    "cik": "0001513845",
-    "ir_url": "https://nebius.com/investor-hub"
-  },
-  {
-    "ticker": "APLD",
-    "name": "Applied Digital",
-    "sub_theme": "neoclouds",
-    "exchange": "NASDAQ",
-    "cik": "0001144879",
-    "ir_url": "https://ir.applieddigital.com"
-  },
-  {
-    "ticker": "IREN",
-    "name": "Iris Energy",
-    "sub_theme": "neoclouds",
-    "exchange": "NASDAQ",
-    "cik": "0001878848",
-    "ir_url": "https://iren.com/investors"
-  },
-  {
-    "ticker": "BE",
-    "name": "Bloom Energy",
-    "sub_theme": "neoclouds",
-    "exchange": "NYSE",
-    "cik": "0001664703",
-    "ir_url": "https://investors.bloomenergy.com"
+    "cik": "0000320193",
+    "ir_url": "https://investor.apple.com"
   },
   {
     "ticker": "NVDA",
     "name": "NVIDIA",
-    "sub_theme": "semis_compute",
+    "sub_theme": "mag7",
     "exchange": "NASDAQ",
     "cik": "0001045810",
     "ir_url": "https://investor.nvidia.com"
+  },
+  {
+    "ticker": "TSLA",
+    "name": "Tesla",
+    "sub_theme": "mag7",
+    "exchange": "NASDAQ",
+    "cik": "0001318605",
+    "ir_url": "https://ir.tesla.com"
   },
   {
     "ticker": "AMD",
@@ -152,12 +120,12 @@
     "ir_url": "https://ir.kla.com"
   },
   {
-    "ticker": "TSLA",
-    "name": "Tesla",
+    "ticker": "ORCL",
+    "name": "Oracle",
     "sub_theme": "ai_applications",
-    "exchange": "NASDAQ",
-    "cik": "0001318605",
-    "ir_url": "https://ir.tesla.com"
+    "exchange": "NYSE",
+    "cik": "0001341439",
+    "ir_url": "https://investor.oracle.com"
   },
   {
     "ticker": "PLTR",
@@ -198,6 +166,46 @@
     "exchange": "NASDAQ",
     "cik": "0000796343",
     "ir_url": "https://www.adobe.com/investor-relations"
+  },
+  {
+    "ticker": "CRWV",
+    "name": "CoreWeave",
+    "sub_theme": "neoclouds",
+    "exchange": "NASDAQ",
+    "cik": "0001769628",
+    "ir_url": "https://investors.coreweave.com"
+  },
+  {
+    "ticker": "NBIS",
+    "name": "Nebius Group",
+    "sub_theme": "neoclouds",
+    "exchange": "NASDAQ",
+    "cik": "0001513845",
+    "ir_url": "https://nebius.com/investor-hub"
+  },
+  {
+    "ticker": "APLD",
+    "name": "Applied Digital",
+    "sub_theme": "neoclouds",
+    "exchange": "NASDAQ",
+    "cik": "0001144879",
+    "ir_url": "https://ir.applieddigital.com"
+  },
+  {
+    "ticker": "IREN",
+    "name": "Iris Energy",
+    "sub_theme": "neoclouds",
+    "exchange": "NASDAQ",
+    "cik": "0001878848",
+    "ir_url": "https://iren.com/investors"
+  },
+  {
+    "ticker": "BE",
+    "name": "Bloom Energy",
+    "sub_theme": "neoclouds",
+    "exchange": "NYSE",
+    "cik": "0001664703",
+    "ir_url": "https://investors.bloomenergy.com"
   },
   {
     "ticker": "BABA",

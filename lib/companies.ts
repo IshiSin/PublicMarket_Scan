@@ -4,7 +4,7 @@ import type { Company, SubTheme } from "./types";
 export const companies: Company[] = companiesRaw as Company[];
 
 export const SUB_THEME_LABELS: Record<SubTheme, string> = {
-  hyperscalers: "Hyperscalers",
+  mag7: "Mag 7",
   neoclouds: "Neoclouds",
   semis_compute: "Semis — Compute",
   semis_fab_equipment: "Semis — Fab & Equipment",
@@ -13,11 +13,11 @@ export const SUB_THEME_LABELS: Record<SubTheme, string> = {
 };
 
 export const SUB_THEME_ORDER: SubTheme[] = [
-  "hyperscalers",
-  "neoclouds",
+  "mag7",
   "semis_compute",
   "semis_fab_equipment",
   "ai_applications",
+  "neoclouds",
   "international",
 ];
 

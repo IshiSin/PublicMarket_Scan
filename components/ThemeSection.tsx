@@ -5,11 +5,11 @@ import { SUB_THEME_LABELS } from "@/lib/companies";
 import CompanyCard from "./CompanyCard";
 
 const THEME_CODES: Record<SubTheme, string> = {
-  hyperscalers:       "01",
-  neoclouds:          "02",
-  semis_compute:      "03",
-  semis_fab_equipment:"04",
-  ai_applications:    "05",
+  mag7:               "01",
+  semis_compute:      "02",
+  semis_fab_equipment:"03",
+  ai_applications:    "04",
+  neoclouds:          "05",
   international:      "06",
 };
 

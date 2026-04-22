@@ -199,7 +199,7 @@ export default async function DashboardPage() {
             AI PUBLIC MARKET MONITOR
           </h1>
           <span style={{ fontSize: "10px", color: "var(--text-faint)", letterSpacing: "0.1em" }}>
-            {companies.length} COMPANIES · 6 SECTORS
+            {companies.length} COMPANIES · 6 THEMES
           </span>
         </div>
         <div style={{ textAlign: "right" }}>

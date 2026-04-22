@@ -1,5 +1,5 @@
 export type SubTheme =
-  | "hyperscalers"
+  | "mag7"
   | "neoclouds"
   | "semis_compute"
   | "semis_fab_equipment"
