@@ -1,0 +1,45 @@
+{
+  "_comment": "Edit this file to teach the model what makes a good AI takeaway. Add/remove examples freely — the script injects these directly into the prompt.",
+
+  "include": [
+    "Specific dollar amounts for AI capex or infrastructure spend",
+    "GPU procurement, supply chain mentions, or chip partnerships",
+    "AI-driven revenue with specific numbers or percentages",
+    "New AI product launches with adoption metrics or scale",
+    "AI model improvements with measurable outcomes (speed, accuracy, cost)",
+    "Data center buildout plans with capacity, timeline, or power figures",
+    "AI-driven efficiency gains expressed as percentage or dollar impact",
+    "Compute constraints — when demand exceeds available supply",
+    "AI chip development (custom silicon, TPUs, MTIA, etc.)",
+    "Headcount or organizational changes specifically tied to AI strategy"
+  ],
+
+  "exclude": [
+    "Generic business confidence statements without AI-specific content",
+    "Standard quarterly boilerplate (beat estimates, in-line with guidance)",
+    "HR or org changes unrelated to AI",
+    "Non-AI product updates (consumer hardware, legacy software, etc.)",
+    "Regulatory or legal commentary not related to AI",
+    "Macro/economic commentary without AI angle",
+    "Dividend or buyback announcements"
+  ],
+
+  "good_examples": [
+    "Meta is spending $115–135 billion on infrastructure in 2026, mostly for AI data centers and servers to power Meta Superintelligence Labs.",
+    "AI recommendations are getting a major overhaul — Meta is building new recommendation models on top of LLMs using longer user history and real-time signals, driving a 3.5% lift in Facebook ad clicks.",
+    "Meta built its own AI chip (MTIA), which now powers the Andromeda retrieval engine alongside Nvidia and AMD, tripling compute efficiency.",
+    "Compute demand is outpacing supply — Meta expects to remain compute-constrained through most of 2026 until new data center capacity comes online.",
+    "NVIDIA's data center revenue hit $35.6B in Q4, up 93% YoY, driven almost entirely by Hopper GPU demand from hyperscalers and sovereign AI customers."
+  ],
+
+  "bad_examples": [
+    "The company remains confident in its long-term strategy.",
+    "Management reiterated full-year guidance.",
+    "The CFO noted operating expenses were in line with expectations.",
+    "The CEO thanked employees for their hard work this quarter.",
+    "Revenue came in above analyst estimates.",
+    "The company plans to continue investing in its business."
+  ],
+
+  "format_instructions": "Write each takeaway as: **Bold headline.** One or two supporting sentences with specific numbers. Aim for 8–12 takeaways. Focus entirely on AI — skip anything that isn't directly AI-related even if it was a big story in the call."
+}

@@ -67,6 +67,7 @@ export interface EarningsEvent {
   transcript_source_url: string | null;
   transcript_added_at: string | null;
   ai_summary: AISummary | null;
+  takeaways_md: string | null;
 }
 
 export interface CompanyData {

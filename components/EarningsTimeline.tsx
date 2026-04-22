@@ -60,10 +60,32 @@ function SummarySection({ summary }: { summary: NonNullable<EarningsEvent["ai_su
   );
 }
 
+function TakeawaysPanel({ md }: { md: string }) {
+  // Parse numbered markdown list into items
+  const lines = md.split("\n").filter(Boolean);
+  const items: { bold: string; rest: string }[] = [];
+  for (const line of lines) {
+    const m = line.match(/^\d+\.\s+\*\*(.+?)\*\*(.*)$/);
+    if (m) items.push({ bold: m[1], rest: m[2].trim() });
+  }
+  if (!items.length) return <p style={{ fontSize: "10px", color: "var(--text-dim)", fontStyle: "italic" }}>{md}</p>;
+  return (
+    <ol style={{ margin: 0, paddingLeft: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
+      {items.map((item, i) => (
+        <li key={i} style={{ fontSize: "10px", lineHeight: 1.6, color: "var(--text-dim)" }}>
+          <span style={{ color: "var(--text)", fontWeight: 500 }}>{item.bold}</span>
+          {item.rest && ` ${item.rest}`}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export default function EarningsTimeline({
   events, irUrl, error,
 }: { events: EarningsEvent[]; irUrl: string; error?: string }) {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [takeawaysOpen, setTakeawaysOpen] = useState<string | null>(null);
 
   if (error || !events?.length) return (
     <div style={{ color: "var(--text-faint)", fontSize: "10px" }}>
@@ -122,6 +144,26 @@ export default function EarningsTimeline({
                   </span>
                 </a>
 
+                {/* Takeaways toggle */}
+                {ev.takeaways_md && (() => {
+                  const tOpen = takeawaysOpen === key;
+                  return (
+                    <button
+                      onClick={() => setTakeawaysOpen(tOpen ? null : key)}
+                      style={{
+                        fontSize: "9px", letterSpacing: "0.06em",
+                        padding: "2px 6px",
+                        background: tOpen ? "rgba(173,255,47,0.15)" : "rgba(173,255,47,0.06)",
+                        color: "var(--primary)",
+                        border: "1px solid var(--border-hi)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {tOpen ? "▲ HIDE" : "▼ TAKEAWAYS"}
+                    </button>
+                  );
+                })()}
+
                 {/* AI Notes toggle — only when summary exists */}
                 {ev.transcript_status === "published" && ev.ai_summary && (
                   <button
@@ -140,6 +182,11 @@ export default function EarningsTimeline({
                 )}
               </div>
             </div>
+            {takeawaysOpen === key && ev.takeaways_md && (
+              <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid var(--border)" }}>
+                <TakeawaysPanel md={ev.takeaways_md} />
+              </div>
+            )}
             {isExp && ev.ai_summary && <SummarySection summary={ev.ai_summary} />}
           </div>
         );

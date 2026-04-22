@@ -83,7 +83,15 @@ async function fetchEvents(ticker: string): Promise<EarningsEvent[]> {
     for (const file of eventFiles) {
       try {
         const raw = await fs.readFile(path.join(dir, file), "utf-8");
-        events.push(JSON.parse(raw));
+        const event: EarningsEvent = JSON.parse(raw);
+        // Load AI takeaways markdown if it exists
+        const takeawaysPath = path.join(dir, file.replace(".json", "-takeaways.md"));
+        try {
+          event.takeaways_md = await fs.readFile(takeawaysPath, "utf-8");
+        } catch {
+          event.takeaways_md = null;
+        }
+        events.push(event);
       } catch {
         // skip malformed
       }
