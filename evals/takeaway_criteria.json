@@ -10,8 +10,7 @@
     "Data center buildout plans with capacity, timeline, or power figures",
     "AI-driven efficiency gains expressed as percentage or dollar impact",
     "Compute constraints — when demand exceeds available supply",
-    "AI chip development (custom silicon, TPUs, MTIA, etc.)",
-    "Headcount or organizational changes specifically tied to AI strategy"
+    "AI chip development (custom silicon, TPUs, MTIA, etc.)"
   ],
 
   "exclude": [
@@ -21,7 +20,8 @@
     "Non-AI product updates (consumer hardware, legacy software, etc.)",
     "Regulatory or legal commentary not related to AI",
     "Macro/economic commentary without AI angle",
-    "Dividend or buyback announcements"
+    "Dividend or buyback announcements",
+    "Headcount or organizational changes specifically tied to AI strategy"
   ],
 
   "good_examples": [
