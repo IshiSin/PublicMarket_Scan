@@ -22,14 +22,14 @@ export default function ThemeSection({ theme, companies }: { theme: SubTheme; co
         marginBottom: "16px",
       }}>
         <span style={{
-          fontFamily: "'Bebas Neue', sans-serif",
+          fontFamily: "'Barlow Condensed', sans-serif",
           fontSize: "11px", letterSpacing: "0.2em",
           color: "var(--text-faint)",
         }}>
           {THEME_CODES[theme]}
         </span>
         <h2 style={{
-          fontFamily: "'Bebas Neue', sans-serif",
+          fontFamily: "'Barlow Condensed', sans-serif",
           fontSize: "18px", letterSpacing: "0.12em",
           color: "var(--primary)", textShadow: "var(--glow-sm)",
           margin: 0,
@@ -49,11 +49,11 @@ export default function ThemeSection({ theme, companies }: { theme: SubTheme; co
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
           gap: "1px",
-          background: "var(--border)",
+          background: "var(--bg)",
         }}
       >
         {companies.map((d) => (
-          <div key={d.company.ticker} style={{ background: "var(--bg)" }}>
+          <div key={d.company.ticker}>
             <CompanyCard data={d} />
           </div>
         ))}

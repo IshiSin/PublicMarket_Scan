@@ -189,7 +189,7 @@ export default async function DashboardPage() {
       }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: "16px" }}>
           <h1 style={{
-            fontFamily: "'Bebas Neue', sans-serif",
+            fontFamily: "'Barlow Condensed', sans-serif",
             fontSize: "28px",
             letterSpacing: "0.12em",
             color: "var(--primary)",

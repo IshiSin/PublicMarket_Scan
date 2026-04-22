@@ -59,7 +59,7 @@ export default function CompanyCard({ data }: { data: CompanyData }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <div style={{
-            fontFamily: "'Bebas Neue', sans-serif",
+            fontFamily: "'Barlow Condensed', sans-serif",
             fontSize: "20px", letterSpacing: "0.06em",
             color: "var(--primary)", textShadow: "var(--glow-sm)",
             lineHeight: 1,
