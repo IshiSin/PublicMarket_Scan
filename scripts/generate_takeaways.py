@@ -97,7 +97,7 @@ Transcript:
 {transcript}"""
 
 
-def call_llm(system: str, user: str, api_key: str) -> str:
+def call_llm(system: str, user: str, api_key: str, models: list[str]) -> str:
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -107,7 +107,7 @@ def call_llm(system: str, user: str, api_key: str) -> str:
         headers["X-Title"] = "AI Public Market Monitor"
 
     last_err = None
-    for model in MODELS:
+    for model in models:
         print(f"  Trying model: {model}")
         try:
             resp = httpx.post(
@@ -137,7 +137,7 @@ def call_llm(system: str, user: str, api_key: str) -> str:
     raise last_err
 
 
-def generate_for(ticker: str, quarter: str, companies: list, api_key: str, criteria: dict):
+def generate_for(ticker: str, quarter: str, companies: list, api_key: str, criteria: dict, models: list[str]):
     ticker_dir      = DATA_DIR / ticker
     event_file      = ticker_dir / f"{quarter}.json"
     transcript_file = ticker_dir / f"{quarter}-transcript.md"
@@ -168,7 +168,7 @@ def generate_for(ticker: str, quarter: str, companies: list, api_key: str, crite
     user   = build_user_prompt(company_name, ticker, quarter, transcript)
 
     try:
-        content = call_llm(system, user, api_key)
+        content = call_llm(system, user, api_key, models)
     except httpx.HTTPStatusError as e:
         print(f"  ✗ API error {e.response.status_code}: {e.response.text}", file=sys.stderr)
         return False
@@ -216,14 +216,15 @@ def main():
     criteria = load_criteria()
 
     # Resolve free model list dynamically for OpenRouter
-    global MODELS
-    if _PROVIDER == "openrouter" and MODELS is None:
+    if _PROVIDER == "openrouter":
         print("Fetching available free models from OpenRouter...")
-        MODELS = get_free_models(api_key)
-        if not MODELS:
+        available_models = get_free_models(api_key)
+        if not available_models:
             print("Error: no free models with >=16k context found on OpenRouter", file=sys.stderr)
             sys.exit(1)
-        print(f"Will try: {', '.join(MODELS[:5])}{'...' if len(MODELS) > 5 else ''}")
+        print(f"Will try: {', '.join(available_models[:5])}{'...' if len(available_models) > 5 else ''}")
+    else:
+        available_models = MODELS
 
     if "--all" in sys.argv:
         pairs = find_all_pending(companies)
@@ -233,7 +234,7 @@ def main():
         print(f"Processing {len(pairs)} transcript(s)...")
         for ticker, quarter in pairs:
             print(f"\n{ticker} {quarter}")
-            generate_for(ticker, quarter, companies, api_key, criteria)
+            generate_for(ticker, quarter, companies, api_key, criteria, available_models)
     else:
         if len(sys.argv) < 3:
             print("Usage: python generate_takeaways.py <TICKER> <QUARTER>", file=sys.stderr)
@@ -242,7 +243,7 @@ def main():
         ticker  = sys.argv[1].upper()
         quarter = sys.argv[2].strip("/").strip()
         print(f"{ticker} {quarter}")
-        ok = generate_for(ticker, quarter, companies, api_key, criteria)
+        ok = generate_for(ticker, quarter, companies, api_key, criteria, available_models)
         sys.exit(0 if ok else 1)
 
 
