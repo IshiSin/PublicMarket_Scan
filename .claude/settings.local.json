@@ -26,7 +26,9 @@
       "Bash(xargs rm *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git commit *)",
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\('/Users/ishisinghal/market_map_agent/scripts/generate_takeaways.py'\\).read\\(\\)\\); print\\('syntax ok'\\)\")"
     ]
   }
 }

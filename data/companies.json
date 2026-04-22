@@ -112,14 +112,6 @@
     "ir_url": "https://investor.lamresearch.com"
   },
   {
-    "ticker": "KLAC",
-    "name": "KLA Corporation",
-    "sub_theme": "semis_fab_equipment",
-    "exchange": "NASDAQ",
-    "cik": "0000319201",
-    "ir_url": "https://ir.kla.com"
-  },
-  {
     "ticker": "ORCL",
     "name": "Oracle",
     "sub_theme": "ai_applications",
@@ -183,20 +175,4 @@
     "cik": "0001664703",
     "ir_url": "https://investors.bloomenergy.com"
   },
-  {
-    "ticker": "BABA",
-    "name": "Alibaba Group",
-    "sub_theme": "international",
-    "exchange": "NYSE",
-    "cik": "0001577552",
-    "ir_url": "https://www.alibabagroup.com/en-US/investor-relations"
-  },
-  {
-    "ticker": "BIDU",
-    "name": "Baidu",
-    "sub_theme": "international",
-    "exchange": "NASDAQ",
-    "cik": "0001329099",
-    "ir_url": "https://ir.baidu.com"
-  }
 ]
