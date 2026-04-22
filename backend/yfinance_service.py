@@ -92,13 +92,26 @@ def get_financials(ticker: str) -> dict:
         qf  = t.quarterly_financials
         qcf = t.quarterly_cashflow
 
+        revenue_annual   = None
         revenue_latest_q = None
-        revenue_ttm      = None
         revenue_yoy_pct  = None
         gross_margin     = None
         capex_ttm        = None
         capex_yoy_pct    = None
         next_earnings_date = None
+
+        # Annual revenue (most recent fiscal year)
+        try:
+            af = t.financials  # annual income statement
+            if af is not None and not af.empty:
+                for label in ["Total Revenue", "Revenue"]:
+                    if label in af.index:
+                        annual_vals = af.loc[label].dropna()
+                        if len(annual_vals) >= 1:
+                            revenue_annual = _safe_float(annual_vals.iloc[0])
+                        break
+        except Exception:
+            pass
 
         if qf is not None and not qf.empty:
             rev_row = None
@@ -111,10 +124,6 @@ def get_financials(ticker: str) -> dict:
                 vals = rev_row.dropna()
                 if len(vals) >= 1:
                     revenue_latest_q = _safe_float(vals.iloc[0])
-                if len(vals) >= 4:
-                    ttm = _safe_float(vals.iloc[:4].sum())
-                    if ttm and ttm > 0:
-                        revenue_ttm = ttm
                 if len(vals) >= 5:
                     prev = _safe_float(vals.iloc[4])
                     if prev and prev != 0 and revenue_latest_q:
@@ -165,7 +174,7 @@ def get_financials(ticker: str) -> dict:
 
         return {
             "ticker":            ticker,
-            "revenue_ttm":       revenue_ttm,
+            "revenue_annual":    revenue_annual,
             "revenue_latest_q":  revenue_latest_q,
             "revenue_yoy_pct":   revenue_yoy_pct,
             "gross_margin":      gross_margin,
