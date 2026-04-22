@@ -48,8 +48,8 @@ def financials_endpoint(ticker: str = Query(...)):
 
 
 @app.get("/news")
-def news_endpoint(ticker: str = Query(...), limit: int = Query(5, ge=1, le=20)):
-    return get_news(ticker.strip().upper(), limit=limit)
+def news_endpoint(ticker: str = Query(...), name: str = Query(""), limit: int = Query(5, ge=1, le=20)):
+    return get_news(ticker.strip().upper(), name=name.strip(), limit=limit)
 
 
 @app.get("/scrape")

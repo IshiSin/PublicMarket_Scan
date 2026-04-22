@@ -49,13 +49,13 @@ async function fetchFinancials(ticker: string): Promise<Financials | { error: st
   }
 }
 
-async function fetchNews(ticker: string): Promise<NewsItem[] | { error: string }> {
+async function fetchNews(ticker: string, name: string): Promise<NewsItem[] | { error: string }> {
   const cacheKey = `news:${ticker}`;
   const cached = await cacheGet<NewsItem[]>(cacheKey);
   if (cached) return cached;
 
   try {
-    const resp = await fetch(`${BACKEND}/news?ticker=${encodeURIComponent(ticker)}`, {
+    const resp = await fetch(`${BACKEND}/news?ticker=${encodeURIComponent(ticker)}&name=${encodeURIComponent(name)}`, {
       signal: AbortSignal.timeout(12000),
     });
     if (!resp.ok) throw new Error(`${resp.status}`);
@@ -106,7 +106,7 @@ export default async function DashboardPage() {
     companies.map(async (company) => {
       const [financialsResult, newsResult, events] = await Promise.all([
         fetchFinancials(company.ticker),
-        fetchNews(company.ticker),
+        fetchNews(company.ticker, company.name),
         fetchEvents(company.ticker),
       ]);
 
