@@ -50,6 +50,7 @@ export default function FinancialsBlock({ financials, error }: { financials: Fin
 
   return (
     <div>
+      <Row label="REV TTM"       value={fmtRev(financials.revenue_ttm)} />
       <Row label="REV MRQ"       value={fmtRev(financials.revenue_latest_q)} />
       <Row label="REV YOY"       value={fmtPct(financials.revenue_yoy_pct)}   colored={financials.revenue_yoy_pct} />
       <Row label="GROSS MARGIN"  value={fmtPct(financials.gross_margin)} />

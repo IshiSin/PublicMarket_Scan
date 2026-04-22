@@ -93,6 +93,7 @@ def get_financials(ticker: str) -> dict:
         qcf = t.quarterly_cashflow
 
         revenue_latest_q = None
+        revenue_ttm      = None
         revenue_yoy_pct  = None
         gross_margin     = None
         capex_ttm        = None
@@ -110,6 +111,10 @@ def get_financials(ticker: str) -> dict:
                 vals = rev_row.dropna()
                 if len(vals) >= 1:
                     revenue_latest_q = _safe_float(vals.iloc[0])
+                if len(vals) >= 4:
+                    ttm = _safe_float(vals.iloc[:4].sum())
+                    if ttm and ttm > 0:
+                        revenue_ttm = ttm
                 if len(vals) >= 5:
                     prev = _safe_float(vals.iloc[4])
                     if prev and prev != 0 and revenue_latest_q:
@@ -160,6 +165,7 @@ def get_financials(ticker: str) -> dict:
 
         return {
             "ticker":            ticker,
+            "revenue_ttm":       revenue_ttm,
             "revenue_latest_q":  revenue_latest_q,
             "revenue_yoy_pct":   revenue_yoy_pct,
             "gross_margin":      gross_margin,

@@ -26,6 +26,7 @@ export interface Quote {
 
 export interface Financials {
   ticker: string;
+  revenue_ttm: number | null;
   revenue_latest_q: number | null;
   revenue_yoy_pct: number | null;
   gross_margin: number | null;
