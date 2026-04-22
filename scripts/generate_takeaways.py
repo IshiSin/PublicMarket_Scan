@@ -36,15 +36,14 @@ else:  # openrouter (default)
     API_URL   = "https://openrouter.ai/api/v1/chat/completions"
     # Tried in order — first available wins (spread across providers to avoid single-provider limits)
     MODELS    = [
-        "qwen/qwen3-235b-a22b:free",
-        "qwen/qwen3-30b-a3b:free",
-        "moonshotai/kimi-vl-a3b-thinking:free",
+        "deepseek/deepseek-chat-v3-0324:free",
         "deepseek/deepseek-r1:free",
+        "qwen/qwq-32b:free",
         "google/gemma-3-27b-it:free",
         "meta-llama/llama-3.3-70b-instruct:free",
         "microsoft/phi-4:free",
-        "qwen/qwen3-8b:free",
         "google/gemma-3-12b-it:free",
+        "meta-llama/llama-3.1-8b-instruct:free",
         "mistralai/mistral-7b-instruct:free",
     ]
     API_KEY_VAR = "OPENROUTER_API_KEY"
@@ -118,8 +117,8 @@ def call_llm(system: str, user: str, api_key: str) -> str:
             resp.raise_for_status()
             return resp.json()["choices"][0]["message"]["content"].strip()
         except httpx.HTTPStatusError as e:
-            if e.response.status_code == 429:
-                print(f"  Rate limited on {model}, trying next...")
+            if e.response.status_code in (429, 404):
+                print(f"  {e.response.status_code} on {model}, trying next...")
                 last_err = e
                 time.sleep(2)
                 continue
