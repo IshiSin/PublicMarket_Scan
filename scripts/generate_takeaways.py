@@ -34,11 +34,17 @@ if _PROVIDER == "groq":
     API_KEY_VAR = "GROQ_API_KEY"
 else:  # openrouter (default)
     API_URL   = "https://openrouter.ai/api/v1/chat/completions"
-    # Tried in order — first available wins
+    # Tried in order — first available wins (spread across providers to avoid single-provider limits)
     MODELS    = [
+        "qwen/qwen3-235b-a22b:free",
+        "qwen/qwen3-30b-a3b:free",
+        "moonshotai/kimi-vl-a3b-thinking:free",
+        "deepseek/deepseek-r1:free",
         "google/gemma-3-27b-it:free",
         "meta-llama/llama-3.3-70b-instruct:free",
         "microsoft/phi-4:free",
+        "qwen/qwen3-8b:free",
+        "google/gemma-3-12b-it:free",
         "mistralai/mistral-7b-instruct:free",
     ]
     API_KEY_VAR = "OPENROUTER_API_KEY"
@@ -191,7 +197,7 @@ def main():
         else:
             print("Error: GROQ_API_KEY not set. Get a free key at console.groq.com", file=sys.stderr)
         sys.exit(1)
-    print(f"Using {_PROVIDER} / {MODEL}")
+    print(f"Using {_PROVIDER} / {MODELS[0]} (+{len(MODELS)-1} fallbacks)")
 
     companies_file = REPO_ROOT / "data" / "companies.json"
     with open(companies_file) as f:
