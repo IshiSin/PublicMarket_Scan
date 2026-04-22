@@ -24,8 +24,17 @@ REPO_ROOT = Path(__file__).parent.parent
 DATA_DIR  = REPO_ROOT / "data" / "events"
 EVALS_FILE = REPO_ROOT / "evals" / "takeaway_criteria.json"
 
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL   = "llama-3.3-70b-versatile"
+# Provider config — set TAKEAWAYS_PROVIDER=groq to use Groq instead
+_PROVIDER = os.environ.get("TAKEAWAYS_PROVIDER", "openrouter").lower()
+
+if _PROVIDER == "groq":
+    API_URL   = "https://api.groq.com/openai/v1/chat/completions"
+    MODEL     = "llama-3.3-70b-versatile"
+    API_KEY_VAR = "GROQ_API_KEY"
+else:  # openrouter (default)
+    API_URL   = "https://openrouter.ai/api/v1/chat/completions"
+    MODEL     = "meta-llama/llama-3.3-70b-instruct:free"
+    API_KEY_VAR = "OPENROUTER_API_KEY"
 
 
 def load_criteria() -> dict:
@@ -66,15 +75,20 @@ Transcript:
 {transcript}"""
 
 
-def call_groq(system: str, user: str, api_key: str) -> str:
+def call_llm(system: str, user: str, api_key: str) -> str:
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    if _PROVIDER == "openrouter":
+        headers["HTTP-Referer"] = "https://github.com/IshiSin/PublicMarket_Scan"
+        headers["X-Title"] = "AI Public Market Monitor"
+
     resp = httpx.post(
-        GROQ_API_URL,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
+        API_URL,
+        headers=headers,
         json={
-            "model": GROQ_MODEL,
+            "model": MODEL,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user",   "content": user},
@@ -82,7 +96,7 @@ def call_groq(system: str, user: str, api_key: str) -> str:
             "temperature": 0.3,
             "max_tokens":  2048,
         },
-        timeout=60.0,
+        timeout=90.0,
     )
     resp.raise_for_status()
     return resp.json()["choices"][0]["message"]["content"].strip()
@@ -109,7 +123,7 @@ def generate_for(ticker: str, quarter: str, companies: list, api_key: str, crite
 
     company_name = next((c["name"] for c in companies if c["ticker"] == ticker), ticker)
 
-    print(f"  Generating takeaways for {ticker} {quarter} via Groq ({GROQ_MODEL})...")
+    print(f"  Generating takeaways for {ticker} {quarter}...")
 
     # Truncate to ~80k chars — Llama 3.3 70B has 128k context but keep headroom
     if len(transcript) > 80_000:
@@ -119,9 +133,9 @@ def generate_for(ticker: str, quarter: str, companies: list, api_key: str, crite
     user   = build_user_prompt(company_name, ticker, quarter, transcript)
 
     try:
-        content = call_groq(system, user, api_key)
+        content = call_llm(system, user, api_key)
     except httpx.HTTPStatusError as e:
-        print(f"  ✗ Groq API error {e.response.status_code}: {e.response.text}", file=sys.stderr)
+        print(f"  ✗ API error {e.response.status_code}: {e.response.text}", file=sys.stderr)
         return False
 
     # Wrap in a clean header
@@ -150,10 +164,14 @@ def find_all_pending(companies: list) -> list[tuple[str, str]]:
 
 
 def main():
-    api_key = os.environ.get("GROQ_API_KEY")
+    api_key = os.environ.get(API_KEY_VAR)
     if not api_key:
-        print("Error: GROQ_API_KEY not set. Get a free key at console.groq.com", file=sys.stderr)
+        if _PROVIDER == "openrouter":
+            print("Error: OPENROUTER_API_KEY not set. Get a free key at openrouter.ai", file=sys.stderr)
+        else:
+            print("Error: GROQ_API_KEY not set. Get a free key at console.groq.com", file=sys.stderr)
         sys.exit(1)
+    print(f"Using {_PROVIDER} / {MODEL}")
 
     companies_file = REPO_ROOT / "data" / "companies.json"
     with open(companies_file) as f:
