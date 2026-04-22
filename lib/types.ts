@@ -29,6 +29,7 @@ export interface Financials {
   revenue_annual: number | null;
   revenue_latest_q: number | null;
   revenue_yoy_pct: number | null;
+  net_income_mrq: number | null;
   gross_margin: number | null;
   capex_ttm: number | null;
   capex_yoy_pct: number | null;

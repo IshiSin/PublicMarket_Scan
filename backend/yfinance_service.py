@@ -130,6 +130,7 @@ def get_financials(ticker: str) -> dict:
         revenue_annual   = None
         revenue_latest_q = None
         revenue_yoy_pct  = None
+        net_income_mrq   = None
         gross_margin     = None
         capex_ttm        = None
         capex_yoy_pct    = None
@@ -163,6 +164,13 @@ def get_financials(ticker: str) -> dict:
                     prev = _safe_float(vals.iloc[4])
                     if prev and prev != 0 and revenue_latest_q:
                         revenue_yoy_pct = (revenue_latest_q - prev) / abs(prev) * 100
+
+            for ni_label in ["Net Income", "Net Income Common Stockholders"]:
+                if ni_label in qf.index:
+                    ni_vals = qf.loc[ni_label].dropna()
+                    if len(ni_vals) >= 1:
+                        net_income_mrq = _safe_float(ni_vals.iloc[0])
+                    break
 
             gp_row = None
             if "Gross Profit" in qf.index:
@@ -212,6 +220,7 @@ def get_financials(ticker: str) -> dict:
             "revenue_annual":    revenue_annual,
             "revenue_latest_q":  revenue_latest_q,
             "revenue_yoy_pct":   revenue_yoy_pct,
+            "net_income_mrq":    net_income_mrq,
             "gross_margin":      gross_margin,
             "capex_ttm":         capex_ttm,
             "capex_yoy_pct":     capex_yoy_pct,

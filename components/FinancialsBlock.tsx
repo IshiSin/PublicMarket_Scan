@@ -53,7 +53,8 @@ export default function FinancialsBlock({ financials, error }: { financials: Fin
       <Row label="REV ANNUAL"    value={fmtRev(financials.revenue_annual)} />
       <Row label="REV MRQ"       value={fmtRev(financials.revenue_latest_q)} />
       <Row label="REV YOY"       value={fmtPct(financials.revenue_yoy_pct)}   colored={financials.revenue_yoy_pct} />
-      <Row label="GROSS MARGIN"  value={fmtPct(financials.gross_margin)} />
+      <Row label="NET INCOME MRQ" value={fmtRev(financials.net_income_mrq)} colored={financials.net_income_mrq} />
+      <Row label="GROSS MARGIN"   value={fmtPct(financials.gross_margin)} />
       <Row label="CAPEX TTM"     value={fmtRev(financials.capex_ttm)} />
       <Row label="NEXT EARNINGS" value={fmtDate(financials.next_earnings_date)} />
     </div>
