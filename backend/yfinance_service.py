@@ -132,6 +132,7 @@ def get_financials(ticker: str) -> dict:
         revenue_yoy_pct  = None
         net_income_mrq   = None
         gross_margin     = None
+        pe_ratio         = None
         capex_ttm        = None
         capex_yoy_pct    = None
         next_earnings_date = None
@@ -184,6 +185,15 @@ def get_financials(ticker: str) -> dict:
                     if gp is not None and rv and rv != 0:
                         gross_margin = gp / rv * 100
 
+        # Trailing P/E — precomputed by Yahoo, needs t.info (cached 24h so rate limits fine)
+        try:
+            info = t.info
+            pe = info.get("trailingPE")
+            if pe is not None:
+                pe_ratio = _safe_float(pe)
+        except Exception:
+            pass
+
         if qcf is not None and not qcf.empty:
             capex_row = None
             for label in ["Capital Expenditure", "Purchase Of Property Plant And Equipment"]:
@@ -222,6 +232,7 @@ def get_financials(ticker: str) -> dict:
             "revenue_yoy_pct":   revenue_yoy_pct,
             "net_income_mrq":    net_income_mrq,
             "gross_margin":      gross_margin,
+            "pe_ratio":          pe_ratio,
             "capex_ttm":         capex_ttm,
             "capex_yoy_pct":     capex_yoy_pct,
             "next_earnings_date": next_earnings_date,
