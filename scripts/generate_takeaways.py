@@ -34,19 +34,29 @@ if _PROVIDER == "groq":
     API_KEY_VAR = "GROQ_API_KEY"
 else:  # openrouter (default)
     API_URL   = "https://openrouter.ai/api/v1/chat/completions"
-    # Tried in order — first available wins (spread across providers to avoid single-provider limits)
-    MODELS    = [
-        "deepseek/deepseek-chat-v3-0324:free",
-        "deepseek/deepseek-r1:free",
-        "qwen/qwq-32b:free",
-        "google/gemma-3-27b-it:free",
-        "meta-llama/llama-3.3-70b-instruct:free",
-        "microsoft/phi-4:free",
-        "google/gemma-3-12b-it:free",
-        "meta-llama/llama-3.1-8b-instruct:free",
-        "mistralai/mistral-7b-instruct:free",
-    ]
+    MODELS = None  # fetched dynamically from OpenRouter at runtime
     API_KEY_VAR = "OPENROUTER_API_KEY"
+
+
+def get_free_models(api_key: str) -> list[str]:
+    """Fetch the live OpenRouter model list and return free model IDs, largest context first."""
+    resp = httpx.get(
+        "https://openrouter.ai/api/v1/models",
+        headers={"Authorization": f"Bearer {api_key}"},
+        timeout=15.0,
+    )
+    resp.raise_for_status()
+    models = resp.json().get("data", [])
+    free = [
+        m for m in models
+        if m.get("id", "").endswith(":free")
+        and m.get("context_length", 0) >= 16000  # need enough context for a transcript
+    ]
+    # Sort by context length descending — bigger context = can handle more of the transcript
+    free.sort(key=lambda m: m.get("context_length", 0), reverse=True)
+    ids = [m["id"] for m in free]
+    print(f"  Found {len(ids)} free models on OpenRouter")
+    return ids
 
 
 def load_criteria() -> dict:
@@ -196,13 +206,24 @@ def main():
         else:
             print("Error: GROQ_API_KEY not set. Get a free key at console.groq.com", file=sys.stderr)
         sys.exit(1)
-    print(f"Using {_PROVIDER} / {MODELS[0]} (+{len(MODELS)-1} fallbacks)")
+    if _PROVIDER != "openrouter":
+        print(f"Using {_PROVIDER} / {MODELS[0]}")
 
     companies_file = REPO_ROOT / "data" / "companies.json"
     with open(companies_file) as f:
         companies = json.load(f)
 
     criteria = load_criteria()
+
+    # Resolve free model list dynamically for OpenRouter
+    global MODELS
+    if _PROVIDER == "openrouter" and MODELS is None:
+        print("Fetching available free models from OpenRouter...")
+        MODELS = get_free_models(api_key)
+        if not MODELS:
+            print("Error: no free models with >=16k context found on OpenRouter", file=sys.stderr)
+            sys.exit(1)
+        print(f"Will try: {', '.join(MODELS[:5])}{'...' if len(MODELS) > 5 else ''}")
 
     if "--all" in sys.argv:
         pairs = find_all_pending(companies)
