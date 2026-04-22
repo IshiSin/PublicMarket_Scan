@@ -17,6 +17,7 @@ Output:
 import json
 import os
 import sys
+import time
 import httpx
 from pathlib import Path
 
@@ -29,11 +30,17 @@ _PROVIDER = os.environ.get("TAKEAWAYS_PROVIDER", "openrouter").lower()
 
 if _PROVIDER == "groq":
     API_URL   = "https://api.groq.com/openai/v1/chat/completions"
-    MODEL     = "llama-3.3-70b-versatile"
+    MODELS    = ["llama-3.3-70b-versatile"]
     API_KEY_VAR = "GROQ_API_KEY"
 else:  # openrouter (default)
     API_URL   = "https://openrouter.ai/api/v1/chat/completions"
-    MODEL     = "meta-llama/llama-3.3-70b-instruct:free"
+    # Tried in order — first available wins
+    MODELS    = [
+        "google/gemma-3-27b-it:free",
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "microsoft/phi-4:free",
+        "mistralai/mistral-7b-instruct:free",
+    ]
     API_KEY_VAR = "OPENROUTER_API_KEY"
 
 
@@ -84,22 +91,35 @@ def call_llm(system: str, user: str, api_key: str) -> str:
         headers["HTTP-Referer"] = "https://github.com/IshiSin/PublicMarket_Scan"
         headers["X-Title"] = "AI Public Market Monitor"
 
-    resp = httpx.post(
-        API_URL,
-        headers=headers,
-        json={
-            "model": MODEL,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user",   "content": user},
-            ],
-            "temperature": 0.3,
-            "max_tokens":  2048,
-        },
-        timeout=90.0,
-    )
-    resp.raise_for_status()
-    return resp.json()["choices"][0]["message"]["content"].strip()
+    last_err = None
+    for model in MODELS:
+        print(f"  Trying model: {model}")
+        try:
+            resp = httpx.post(
+                API_URL,
+                headers=headers,
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": system},
+                        {"role": "user",   "content": user},
+                    ],
+                    "temperature": 0.3,
+                    "max_tokens":  2048,
+                },
+                timeout=90.0,
+            )
+            resp.raise_for_status()
+            return resp.json()["choices"][0]["message"]["content"].strip()
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                print(f"  Rate limited on {model}, trying next...")
+                last_err = e
+                time.sleep(2)
+                continue
+            raise
+
+    raise last_err
 
 
 def generate_for(ticker: str, quarter: str, companies: list, api_key: str, criteria: dict):
