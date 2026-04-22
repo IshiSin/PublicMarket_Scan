@@ -194,7 +194,7 @@ def main():
             print("       python generate_takeaways.py --all", file=sys.stderr)
             sys.exit(1)
         ticker  = sys.argv[1].upper()
-        quarter = sys.argv[2]
+        quarter = sys.argv[2].strip("/").strip()
         print(f"{ticker} {quarter}")
         ok = generate_for(ticker, quarter, companies, api_key, criteria)
         sys.exit(0 if ok else 1)
