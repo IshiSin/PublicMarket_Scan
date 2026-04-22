@@ -33,40 +33,66 @@ async function fetchQuotes(): Promise<Record<string, Quote | { error: string }>>
   }
 }
 
-async function fetchFinancials(ticker: string): Promise<Financials | { error: string }> {
-  const cacheKey = `financials:${ticker}`;
-  const cached = await cacheGet<Financials>(cacheKey);
-  if (cached) return cached;
+async function fetchAllFinancials(): Promise<Record<string, Financials | { error: string }>> {
+  // Check which tickers are already cached
+  const results: Record<string, Financials | { error: string }> = {};
+  const missing: string[] = [];
+
+  for (const c of companies) {
+    const cached = await cacheGet<Financials>(`financials:${c.ticker}`);
+    if (cached) results[c.ticker] = cached;
+    else missing.push(c.ticker);
+  }
+
+  if (missing.length === 0) return results;
 
   try {
-    const resp = await fetch(`${BACKEND}/financials?ticker=${encodeURIComponent(ticker)}`, {
-      signal: AbortSignal.timeout(30000),
-    });
+    const resp = await fetch(
+      `${BACKEND}/financials/batch?tickers=${encodeURIComponent(missing.join(","))}`,
+      { signal: AbortSignal.timeout(55000) }
+    );
     if (!resp.ok) throw new Error(`${resp.status}`);
-    const data = await resp.json();
-    await cacheSet(cacheKey, data, 86400);
-    return data;
+    const data: Record<string, Financials> = await resp.json();
+    for (const [ticker, fin] of Object.entries(data)) {
+      if (!("error" in fin)) await cacheSet(`financials:${ticker}`, fin, 86400);
+      results[ticker] = fin;
+    }
   } catch (e) {
-    return { error: String(e) };
+    for (const ticker of missing) results[ticker] = { error: String(e) };
   }
+
+  return results;
 }
 
-async function fetchNews(ticker: string, name: string): Promise<NewsItem[] | { error: string }> {
-  const cacheKey = `news:${ticker}`;
-  const cached = await cacheGet<NewsItem[]>(cacheKey);
-  if (cached) return cached;
+async function fetchAllNews(): Promise<Record<string, NewsItem[] | { error: string }>> {
+  const results: Record<string, NewsItem[] | { error: string }> = {};
+  const missingTickers: string[] = [];
+  const missingNames: string[] = [];
+
+  for (const c of companies) {
+    const cached = await cacheGet<NewsItem[]>(`news:${c.ticker}`);
+    if (cached) results[c.ticker] = cached;
+    else { missingTickers.push(c.ticker); missingNames.push(c.name); }
+  }
+
+  if (missingTickers.length === 0) return results;
 
   try {
-    const resp = await fetch(`${BACKEND}/news?ticker=${encodeURIComponent(ticker)}&name=${encodeURIComponent(name)}`, {
-      signal: AbortSignal.timeout(12000),
-    });
+    const resp = await fetch(
+      `${BACKEND}/news/batch?tickers=${encodeURIComponent(missingTickers.join(","))}&names=${encodeURIComponent(missingNames.join(","))}`,
+      { signal: AbortSignal.timeout(30000) }
+    );
     if (!resp.ok) throw new Error(`${resp.status}`);
-    const data = await resp.json();
-    await cacheSet(cacheKey, data, 900);
-    return data;
+    const data: Record<string, NewsItem[]> = await resp.json();
+    for (const [ticker, items] of Object.entries(data)) {
+      if (Array.isArray(items)) await cacheSet(`news:${ticker}`, items, 900);
+      results[ticker] = items;
+    }
   } catch (e) {
-    return { error: String(e) };
+    for (const ticker of missingTickers) results[ticker] = { error: String(e) };
   }
+
+  return results;
 }
 
 async function fetchEvents(ticker: string): Promise<EarningsEvent[]> {
@@ -109,14 +135,18 @@ export default async function DashboardPage() {
     timeZoneName: "short",
   });
 
-  // Fetch quotes first (batch), then financials/news/events per-ticker in parallel
-  const quotesMap = await fetchQuotes();
+  // Batch fetch everything — 3 calls to Render instead of 50
+  const [quotesMap, financialsMap, newsMap] = await Promise.all([
+    fetchQuotes(),
+    fetchAllFinancials(),
+    fetchAllNews(),
+  ]);
 
   const perTickerData = await Promise.all(
     companies.map(async (company) => {
       const [financialsResult, newsResult, events] = await Promise.all([
-        fetchFinancials(company.ticker),
-        fetchNews(company.ticker, company.name),
+        Promise.resolve(financialsMap[company.ticker] ?? { error: "not fetched" }),
+        Promise.resolve(newsMap[company.ticker] ?? { error: "not fetched" }),
         fetchEvents(company.ticker),
       ]);
 
