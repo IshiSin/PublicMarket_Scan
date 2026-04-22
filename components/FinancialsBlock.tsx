@@ -54,7 +54,6 @@ export default function FinancialsBlock({ financials, error }: { financials: Fin
       <Row label="REV YOY"       value={fmtPct(financials.revenue_yoy_pct)}   colored={financials.revenue_yoy_pct} />
       <Row label="GROSS MARGIN"  value={fmtPct(financials.gross_margin)} />
       <Row label="CAPEX TTM"     value={fmtRev(financials.capex_ttm)} />
-      <Row label="CAPEX YOY"     value={fmtPct(financials.capex_yoy_pct)}     colored={financials.capex_yoy_pct} />
       <Row label="NEXT EARNINGS" value={fmtDate(financials.next_earnings_date)} />
     </div>
   );
