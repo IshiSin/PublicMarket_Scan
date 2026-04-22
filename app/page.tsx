@@ -7,6 +7,8 @@ import path from "path";
 
 // Force dynamic rendering so data refreshes on each page load
 export const dynamic = "force-dynamic";
+// Allow up to 60s for Render free tier to wake + fetch all data
+export const maxDuration = 60;
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 const BACKEND = process.env.PYTHON_BACKEND_URL ?? "http://localhost:8000";
