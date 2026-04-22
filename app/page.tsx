@@ -85,7 +85,7 @@ async function fetchAllNews(): Promise<Record<string, NewsItem[] | { error: stri
     if (!resp.ok) throw new Error(`${resp.status}`);
     const data: Record<string, NewsItem[]> = await resp.json();
     for (const [ticker, items] of Object.entries(data)) {
-      if (Array.isArray(items)) await cacheSet(`news:${ticker}`, items, 900);
+      if (Array.isArray(items)) await cacheSet(`news:${ticker}`, items, 86400);
       results[ticker] = items;
     }
   } catch (e) {
