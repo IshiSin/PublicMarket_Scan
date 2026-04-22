@@ -22,14 +22,14 @@ export default function ThemeSection({ theme, companies }: { theme: SubTheme; co
         marginBottom: "16px",
       }}>
         <span style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
+          fontFamily: "var(--font-display)",
           fontSize: "11px", letterSpacing: "0.2em",
           color: "var(--text-faint)",
         }}>
           {THEME_CODES[theme]}
         </span>
         <h2 style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
+          fontFamily: "var(--font-display)",
           fontSize: "18px", letterSpacing: "0.12em",
           color: "var(--primary)", textShadow: "var(--glow-sm)",
           margin: 0,
@@ -42,21 +42,26 @@ export default function ThemeSection({ theme, companies }: { theme: SubTheme; co
         </span>
       </div>
 
-      {/* Grid */}
-      <div
-        className="stagger"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-          gap: "1px",
-          background: "var(--bg)",
-        }}
-      >
-        {companies.map((d) => (
-          <div key={d.company.ticker}>
-            <CompanyCard data={d} />
-          </div>
-        ))}
+      {/* Grid — border-top/left on each cell, container holds right+bottom edge */}
+      <div style={{
+        border: "1px solid var(--border)",
+      }}>
+        <div
+          className="stagger"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          }}
+        >
+          {companies.map((d) => (
+            <div key={d.company.ticker} style={{
+              borderTop: "1px solid var(--border)",
+              borderLeft: "1px solid var(--border)",
+            }}>
+              <CompanyCard data={d} />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -43,7 +43,7 @@ export default function PriceBlock({ quote, error }: { quote: Quote | null; erro
     <div className="price-block">
       <div style={{ display: "flex", alignItems: "baseline", gap: "10px", flexWrap: "wrap" }}>
         <span style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
+          fontFamily: "var(--font-display)",
           fontSize: "28px",
           letterSpacing: "0.02em",
           color: "var(--primary)",

@@ -29,7 +29,6 @@ export default function CompanyCard({ data }: { data: CompanyData }) {
       className="fade-up"
       style={{
         background: "var(--surface)",
-        border: "1px solid var(--border)",
         position: "relative",
         display: "flex",
         flexDirection: "column",
@@ -59,7 +58,7 @@ export default function CompanyCard({ data }: { data: CompanyData }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <div style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
+            fontFamily: "var(--font-display)",
             fontSize: "20px", letterSpacing: "0.06em",
             color: "var(--primary)", textShadow: "var(--glow-sm)",
             lineHeight: 1,
