@@ -152,14 +152,6 @@
     "ir_url": "https://investor.servicenow.com"
   },
   {
-    "ticker": "SNOW",
-    "name": "Snowflake",
-    "sub_theme": "ai_applications",
-    "exchange": "NYSE",
-    "cik": "0001640147",
-    "ir_url": "https://investors.snowflake.com"
-  },
-  {
     "ticker": "ADBE",
     "name": "Adobe",
     "sub_theme": "ai_applications",
@@ -182,22 +174,6 @@
     "exchange": "NASDAQ",
     "cik": "0001513845",
     "ir_url": "https://nebius.com/investor-hub"
-  },
-  {
-    "ticker": "APLD",
-    "name": "Applied Digital",
-    "sub_theme": "neoclouds",
-    "exchange": "NASDAQ",
-    "cik": "0001144879",
-    "ir_url": "https://ir.applieddigital.com"
-  },
-  {
-    "ticker": "IREN",
-    "name": "Iris Energy",
-    "sub_theme": "neoclouds",
-    "exchange": "NASDAQ",
-    "cik": "0001878848",
-    "ir_url": "https://iren.com/investors"
   },
   {
     "ticker": "BE",
