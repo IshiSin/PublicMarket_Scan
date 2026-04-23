@@ -39,7 +39,7 @@ async function fetchAllFinancials(): Promise<Record<string, Financials | { error
   const missing: string[] = [];
 
   for (const c of companies) {
-    const cached = await cacheGet<Financials>(`financials:${c.ticker}`);
+    const cached = await cacheGet<Financials>(`financials:v2:${c.ticker}`);
     if (cached) results[c.ticker] = cached;
     else missing.push(c.ticker);
   }
@@ -54,7 +54,7 @@ async function fetchAllFinancials(): Promise<Record<string, Financials | { error
     if (!resp.ok) throw new Error(`${resp.status}`);
     const data: Record<string, Financials> = await resp.json();
     for (const [ticker, fin] of Object.entries(data)) {
-      if (!("error" in fin)) await cacheSet(`financials:${ticker}`, fin, 86400);
+      if (!("error" in fin)) await cacheSet(`financials:v2:${ticker}`, fin, 86400);
       results[ticker] = fin;
     }
   } catch (e) {
