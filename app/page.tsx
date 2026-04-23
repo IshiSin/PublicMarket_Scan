@@ -135,9 +135,10 @@ export default async function DashboardPage() {
     timeZoneName: "short",
   });
 
-  // Batch fetch everything — 3 calls to Render instead of 50
-  const [quotesMap, financialsMap, newsMap] = await Promise.all([
-    fetchQuotes(),
+  // Quotes first (fast batch), then financials + news in parallel
+  // Sequential to avoid overwhelming Render free tier with simultaneous yfinance calls
+  const quotesMap = await fetchQuotes();
+  const [financialsMap, newsMap] = await Promise.all([
     fetchAllFinancials(),
     fetchAllNews(),
   ]);

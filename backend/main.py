@@ -54,7 +54,7 @@ def financials_batch_endpoint(tickers: str = Query(..., description="Comma-separ
     if not ticker_list:
         raise HTTPException(status_code=400, detail="No tickers provided")
     results = {}
-    with ThreadPoolExecutor(max_workers=4) as ex:
+    with ThreadPoolExecutor(max_workers=2) as ex:
         futures = {ex.submit(get_financials, t): t for t in ticker_list}
         for future in as_completed(futures):
             result = future.result()
