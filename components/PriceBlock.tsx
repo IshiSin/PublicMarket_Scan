@@ -59,8 +59,6 @@ export default function PriceBlock({ quote, error }: { quote: Quote | null; erro
         fontSize: "11px", color: "var(--text-dim)",
       }}>
         <span>YTD <Pct v={quote.ytd_pct} /></span>
-        <span style={{ color: "var(--border-hi)" }}>│</span>
-        <span>MCAP <span style={{ color: "var(--text)" }}>{fmtCap(quote.market_cap)}</span></span>
       </div>
     </div>
   );

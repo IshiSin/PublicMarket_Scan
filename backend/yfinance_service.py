@@ -76,14 +76,6 @@ def get_quotes(tickers: list[str]) -> dict:
                 if price is not None and prev_close and prev_close != 0:
                     day_change_pct = (price - prev_close) / prev_close * 100
 
-                # Market cap — lightweight individual call, non-critical
-                market_cap = None
-                try:
-                    t = yf.Ticker(ticker)
-                    market_cap = _safe_float(getattr(t.basic_info, "market_cap", None))
-                except Exception:
-                    pass
-
                 # YTD
                 ytd_pct = None
                 try:
@@ -104,7 +96,6 @@ def get_quotes(tickers: list[str]) -> dict:
                     "price":          price,
                     "day_change_pct": day_change_pct,
                     "ytd_pct":        ytd_pct,
-                    "market_cap":     market_cap,
                     "as_of":          datetime.now(timezone.utc).isoformat(),
                 }
             except Exception as e:
@@ -134,7 +125,6 @@ def get_financials(ticker: str) -> dict:
         gross_margin     = None
         capex_ttm        = None
         capex_yoy_pct    = None
-        next_earnings_date = None
 
         # Annual revenue (most recent fiscal year)
         try:
@@ -200,21 +190,6 @@ def get_financials(ticker: str) -> dict:
                         if prior_ttm and prior_ttm != 0:
                             capex_yoy_pct = (capex_ttm - prior_ttm) / prior_ttm * 100
 
-        try:
-            cal = t.calendar
-            if cal is not None and "Earnings Date" in cal:
-                ed = cal["Earnings Date"]
-                if hasattr(ed, "__iter__") and not isinstance(ed, str):
-                    ed = list(ed)
-                    if ed:
-                        ed = ed[0]
-                if hasattr(ed, "isoformat"):
-                    next_earnings_date = ed.isoformat()
-                elif isinstance(ed, str):
-                    next_earnings_date = ed
-        except Exception:
-            pass
-
         return {
             "ticker":            ticker,
             "revenue_annual":    revenue_annual,
@@ -224,7 +199,6 @@ def get_financials(ticker: str) -> dict:
             "gross_margin":      gross_margin,
             "capex_ttm":         capex_ttm,
             "capex_yoy_pct":     capex_yoy_pct,
-            "next_earnings_date": next_earnings_date,
         }
     except Exception as e:
         logger.error("Financials fetch failed for %s: %s", ticker, e)

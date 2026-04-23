@@ -20,7 +20,7 @@ export interface Quote {
   price: number;
   day_change_pct: number;
   ytd_pct: number;
-  market_cap: number;
+  market_cap?: number;
   as_of: string;
 }
 
@@ -33,7 +33,6 @@ export interface Financials {
   gross_margin: number | null;
   capex_ttm: number | null;
   capex_yoy_pct: number | null;
-  next_earnings_date: string | null;
 }
 
 export interface NewsItem {
