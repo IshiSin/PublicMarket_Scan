@@ -65,7 +65,7 @@ function parseTakeaways(md: string): { bold: string; rest: string }[] {
   const items: { bold: string; rest: string }[] = [];
   for (const line of md.split("\n")) {
     const m = line.match(/^\d+\.\s+\*\*(.+?)\*\*(.*)$/);
-    if (m) items.push({ bold: m[1], rest: m[2].trim() });
+    if (m) items.push({ bold: m[1], rest: m[2].replace(/^[,;:\s]+/, "") });
   }
   return items;
 }
@@ -75,69 +75,118 @@ function TakeawaysModal({
 }: { md: string; title: string; onClose: () => void }) {
   const items = parseTakeaways(md);
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
+
+  const [ticker, quarter] = title.split(" ");
 
   const modal = (
     <div
       onClick={onClose}
       style={{
         position: "fixed", inset: 0, zIndex: 10000,
-        background: "rgba(4, 6, 4, 0.88)",
-        backdropFilter: "blur(4px)",
+        background: "rgba(2, 4, 2, 0.92)",
+        backdropFilter: "blur(6px)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "24px",
+        padding: "20px",
+        fontFamily: "var(--font-mono), monospace",
       }}
     >
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background: "var(--surface)",
-          border: "1px solid var(--border-hi)",
+          background: "#0A0D0A",
+          border: "1px solid rgba(173,255,47,0.30)",
           width: "100%",
-          maxWidth: "720px",
-          maxHeight: "90vh",
+          maxWidth: "780px",
+          maxHeight: "92vh",
           display: "flex",
           flexDirection: "column",
-          boxShadow: "0 0 60px rgba(173,255,47,0.08)",
+          boxShadow: "0 0 0 1px rgba(173,255,47,0.06), 0 32px 80px rgba(0,0,0,0.8), 0 0 80px rgba(173,255,47,0.06)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        {/* Top accent bar */}
+        <div style={{
+          height: "2px",
+          background: "linear-gradient(90deg, transparent, rgba(173,255,47,0.8) 20%, rgba(173,255,47,1) 50%, rgba(173,255,47,0.8) 80%, transparent)",
+          flexShrink: 0,
+        }} />
+
         {/* Header */}
         <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "16px 20px",
-          borderBottom: "1px solid var(--border)",
+          display: "flex", alignItems: "flex-start", justifyContent: "space-between",
+          padding: "20px 28px 16px",
+          borderBottom: "1px solid rgba(173,255,47,0.10)",
           flexShrink: 0,
+          gap: "16px",
         }}>
           <div>
-            <div style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "18px", letterSpacing: "0.1em",
-              color: "var(--primary)", textShadow: "var(--glow-sm)",
-            }}>
-              {title}
+            <div style={{ display: "flex", alignItems: "baseline", gap: "10px", flexWrap: "wrap" }}>
+              <span style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "26px",
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                color: "#ADFF2F",
+                textShadow: "0 0 16px rgba(173,255,47,0.5)",
+                lineHeight: 1,
+              }}>
+                {ticker}
+              </span>
+              <span style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "16px",
+                fontWeight: 400,
+                letterSpacing: "0.08em",
+                color: "rgba(173,255,47,0.55)",
+                lineHeight: 1,
+              }}>
+                {quarter}
+              </span>
             </div>
-            <div style={{ fontSize: "10px", color: "var(--text-faint)", marginTop: "2px", letterSpacing: "0.08em" }}>
-              AI-FOCUSED KEY TAKEAWAYS
+            <div style={{
+              marginTop: "6px",
+              fontSize: "11px",
+              letterSpacing: "0.15em",
+              color: "rgba(194,212,188,0.40)",
+              textTransform: "uppercase",
+            }}>
+              AI-Focused Key Takeaways · {items.length} Items
             </div>
           </div>
           <button
             onClick={onClose}
             style={{
-              background: "none", border: "1px solid var(--border)",
-              color: "var(--text-dim)", cursor: "pointer",
-              fontSize: "12px", padding: "4px 10px",
-              letterSpacing: "0.06em",
+              background: "rgba(173,255,47,0.05)",
+              border: "1px solid rgba(173,255,47,0.20)",
+              color: "rgba(173,255,47,0.60)",
+              cursor: "pointer",
+              fontSize: "11px",
+              padding: "6px 14px",
+              letterSpacing: "0.10em",
+              flexShrink: 0,
+              transition: "all 0.15s ease",
+              fontFamily: "var(--font-mono), monospace",
+            }}
+            onMouseEnter={e => {
+              (e.target as HTMLButtonElement).style.background = "rgba(173,255,47,0.12)";
+              (e.target as HTMLButtonElement).style.color = "#ADFF2F";
+              (e.target as HTMLButtonElement).style.borderColor = "rgba(173,255,47,0.45)";
+            }}
+            onMouseLeave={e => {
+              (e.target as HTMLButtonElement).style.background = "rgba(173,255,47,0.05)";
+              (e.target as HTMLButtonElement).style.color = "rgba(173,255,47,0.60)";
+              (e.target as HTMLButtonElement).style.borderColor = "rgba(173,255,47,0.20)";
             }}
           >
             ESC ✕
@@ -145,39 +194,98 @@ function TakeawaysModal({
         </div>
 
         {/* Body */}
-        <div style={{ overflowY: "auto", padding: "24px 28px", flex: 1 }}>
+        <div style={{ overflowY: "auto", padding: "12px 0", flex: 1 }}>
           {items.length > 0 ? (
-            <ol style={{ margin: 0, paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "18px" }}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
               {items.map((item, i) => (
-                <li key={i} style={{ lineHeight: 1.7, color: "var(--text-dim)", fontSize: "13px" }}>
-                  <span style={{
-                    color: "var(--text)", fontWeight: 600,
-                    fontFamily: "var(--font-display)",
-                    fontSize: "15px", letterSpacing: "0.02em",
+                <div
+                  key={i}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "60px 1fr",
+                    borderBottom: "1px solid rgba(173,255,47,0.07)",
+                    padding: "0",
+                    transition: "background 0.1s ease",
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(173,255,47,0.03)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
+                >
+                  {/* Number column */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "center",
+                    paddingTop: "20px",
+                    paddingBottom: "20px",
+                    borderRight: "1px solid rgba(173,255,47,0.07)",
+                    flexShrink: 0,
                   }}>
-                    {item.bold}
-                  </span>
-                  {item.rest && (
-                    <span style={{ display: "block", marginTop: "2px", fontSize: "12px" }}>
-                      {item.rest}
+                    <span style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "22px",
+                      fontWeight: 700,
+                      color: "rgba(173,255,47,0.40)",
+                      textShadow: "none",
+                      lineHeight: 1,
+                      letterSpacing: "-0.01em",
+                    }}>
+                      {String(i + 1).padStart(2, "0")}
                     </span>
-                  )}
-                </li>
+                  </div>
+
+                  {/* Content column */}
+                  <div style={{ padding: "18px 24px 18px 22px" }}>
+                    <div style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "17px",
+                      fontWeight: 600,
+                      letterSpacing: "0.01em",
+                      color: "#C2D4BC",
+                      lineHeight: 1.3,
+                      marginBottom: item.rest ? "8px" : 0,
+                    }}>
+                      {item.bold}
+                    </div>
+                    {item.rest && (
+                      <div style={{
+                        fontSize: "13px",
+                        lineHeight: 1.7,
+                        color: "rgba(194,212,188,0.70)",
+                        fontFamily: "var(--font-mono), monospace",
+                      }}>
+                        {item.rest}
+                      </div>
+                    )}
+                  </div>
+                </div>
               ))}
-            </ol>
+            </div>
           ) : (
-            <pre style={{ fontSize: "12px", color: "var(--text-dim)", whiteSpace: "pre-wrap" }}>{md}</pre>
+            <pre style={{
+              fontSize: "13px",
+              color: "rgba(194,212,188,0.70)",
+              whiteSpace: "pre-wrap",
+              margin: 0,
+              padding: "20px 28px",
+              lineHeight: 1.7,
+            }}>{md}</pre>
           )}
         </div>
 
         {/* Footer */}
         <div style={{
-          padding: "10px 20px",
-          borderTop: "1px solid var(--border)",
-          fontSize: "9px", color: "var(--text-faint)", letterSpacing: "0.08em",
+          padding: "10px 28px",
+          borderTop: "1px solid rgba(173,255,47,0.10)",
+          fontSize: "10px",
+          color: "rgba(194,212,188,0.25)",
+          letterSpacing: "0.10em",
           flexShrink: 0,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}>
-          GENERATED BY AI · NOT FINANCIAL ADVICE · CLICK OUTSIDE OR ESC TO CLOSE
+          <span>GENERATED BY AI · NOT FINANCIAL ADVICE</span>
+          <span>CLICK OUTSIDE OR ESC TO CLOSE</span>
         </div>
       </div>
     </div>
