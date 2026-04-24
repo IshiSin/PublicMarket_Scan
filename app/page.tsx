@@ -1,99 +1,12 @@
-import { companies, groupByTheme, SUB_THEME_ORDER } from "@/lib/companies";
-import { cacheGet, cacheSet } from "@/lib/cache";
-import ThemeSection from "@/components/ThemeSection";
-import type { CompanyData, Quote, Financials, NewsItem, EarningsEvent } from "@/lib/types";
+import { companies } from "@/lib/companies";
 import { promises as fs } from "fs";
 import path from "path";
+import type { EarningsEvent } from "@/lib/types";
+import DataProvider from "@/components/DataProvider";
+import DashboardShell, { type CompanyWithEvents } from "@/components/DashboardShell";
 
-// Force dynamic rendering so data refreshes on each page load
+// Static rendering is fine — no network calls here
 export const dynamic = "force-dynamic";
-// Allow up to 60s for Render free tier to wake + fetch all data
-export const maxDuration = 60;
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-const BACKEND = process.env.PYTHON_BACKEND_URL ?? "http://localhost:8000";
-
-async function fetchQuotes(): Promise<Record<string, Quote | { error: string }>> {
-  const tickers = companies.map((c) => c.ticker).join(",");
-  const cacheKey = `quotes:${companies.map((c) => c.ticker).sort().join(",")}`;
-
-  const cached = await cacheGet<Record<string, Quote>>(cacheKey);
-  if (cached) return cached;
-
-  try {
-    const resp = await fetch(`${BACKEND}/quotes?tickers=${encodeURIComponent(tickers)}`, {
-      signal: AbortSignal.timeout(55000), // Render free tier can take ~30s to wake
-    });
-    if (!resp.ok) throw new Error(`${resp.status}`);
-    const data = await resp.json();
-    await cacheSet(cacheKey, data, 60);
-    return data;
-  } catch (e) {
-    return Object.fromEntries(companies.map((c) => [c.ticker, { error: String(e) }]));
-  }
-}
-
-async function fetchAllFinancials(): Promise<Record<string, Financials | { error: string }>> {
-  // Check which tickers are already cached
-  const results: Record<string, Financials | { error: string }> = {};
-  const missing: string[] = [];
-
-  for (const c of companies) {
-    const cached = await cacheGet<Financials>(`financials:v2:${c.ticker}`);
-    if (cached) results[c.ticker] = cached;
-    else missing.push(c.ticker);
-  }
-
-  if (missing.length === 0) return results;
-
-  try {
-    const resp = await fetch(
-      `${BACKEND}/financials/batch?tickers=${encodeURIComponent(missing.join(","))}`,
-      { signal: AbortSignal.timeout(55000) }
-    );
-    if (!resp.ok) throw new Error(`${resp.status}`);
-    const data: Record<string, Financials> = await resp.json();
-    for (const [ticker, fin] of Object.entries(data)) {
-      if (!("error" in fin)) await cacheSet(`financials:v2:${ticker}`, fin, 86400);
-      results[ticker] = fin;
-    }
-  } catch (e) {
-    for (const ticker of missing) results[ticker] = { error: String(e) };
-  }
-
-  return results;
-}
-
-async function fetchAllNews(): Promise<Record<string, NewsItem[] | { error: string }>> {
-  const results: Record<string, NewsItem[] | { error: string }> = {};
-  const missingTickers: string[] = [];
-  const missingNames: string[] = [];
-
-  for (const c of companies) {
-    const cached = await cacheGet<NewsItem[]>(`news:${c.ticker}`);
-    if (cached) results[c.ticker] = cached;
-    else { missingTickers.push(c.ticker); missingNames.push(c.name); }
-  }
-
-  if (missingTickers.length === 0) return results;
-
-  try {
-    const resp = await fetch(
-      `${BACKEND}/news/batch?tickers=${encodeURIComponent(missingTickers.join(","))}&names=${encodeURIComponent(missingNames.join(","))}`,
-      { signal: AbortSignal.timeout(30000) }
-    );
-    if (!resp.ok) throw new Error(`${resp.status}`);
-    const data: Record<string, NewsItem[]> = await resp.json();
-    for (const [ticker, items] of Object.entries(data)) {
-      if (Array.isArray(items)) await cacheSet(`news:${ticker}`, items, 86400);
-      results[ticker] = items;
-    }
-  } catch (e) {
-    for (const ticker of missingTickers) results[ticker] = { error: String(e) };
-  }
-
-  return results;
-}
 
 async function fetchEvents(ticker: string): Promise<EarningsEvent[]> {
   const dir = path.join(process.cwd(), "data", "events", ticker);
@@ -110,7 +23,6 @@ async function fetchEvents(ticker: string): Promise<EarningsEvent[]> {
       try {
         const raw = await fs.readFile(path.join(dir, file), "utf-8");
         const event: EarningsEvent = JSON.parse(raw);
-        // Load AI takeaways markdown if it exists
         const takeawaysPath = path.join(dir, file.replace(".json", "-takeaways.md"));
         try {
           event.takeaways_md = await fs.readFile(takeawaysPath, "utf-8");
@@ -135,91 +47,17 @@ export default async function DashboardPage() {
     timeZoneName: "short",
   });
 
-  // Quotes first (fast batch), then financials + news in parallel
-  // Sequential to avoid overwhelming Render free tier with simultaneous yfinance calls
-  const quotesMap = await fetchQuotes();
-  const [financialsMap, newsMap] = await Promise.all([
-    fetchAllFinancials(),
-    fetchAllNews(),
-  ]);
-
-  const perTickerData = await Promise.all(
-    companies.map(async (company) => {
-      const [financialsResult, newsResult, events] = await Promise.all([
-        Promise.resolve(financialsMap[company.ticker] ?? { error: "not fetched" }),
-        Promise.resolve(newsMap[company.ticker] ?? { error: "not fetched" }),
-        fetchEvents(company.ticker),
-      ]);
-
-      const quoteResult = quotesMap[company.ticker];
-
-        const companyData: CompanyData = {
-          company,
-          quote: quoteResult && !("error" in quoteResult) ? (quoteResult as Quote) : null,
-          financials:
-            financialsResult && !("error" in financialsResult) ? (financialsResult as Financials) : null,
-          news: Array.isArray(newsResult) ? (newsResult as NewsItem[]) : [],
-          events,
-          errors: {
-            quote: quoteResult && "error" in quoteResult ? (quoteResult as { error: string }).error : undefined,
-            financials:
-              financialsResult && "error" in financialsResult
-                ? (financialsResult as { error: string }).error
-                : undefined,
-            news: newsResult && "error" in newsResult ? (newsResult as { error: string }).error : undefined,
-          },
-        };
-
-        return { ticker: company.ticker, data: companyData };
-      })
+  // Only disk I/O — no network calls, never times out
+  const companiesWithEvents: CompanyWithEvents[] = await Promise.all(
+    companies.map(async (company) => ({
+      company,
+      events: await fetchEvents(company.ticker),
+    }))
   );
-
-  const dataByTicker = Object.fromEntries(perTickerData.map(({ ticker, data }) => [ticker, data]));
-  const grouped = groupByTheme();
-
-  // Build ticker tape items from quotes
-  const tickerTapeItems = companies
-    .map((c) => {
-      const q = quotesMap[c.ticker];
-      if (!q || "error" in q) return null;
-      const quote = q as Quote;
-      const sign = (quote.day_change_pct ?? 0) >= 0 ? "▲" : "▼";
-      return `${c.ticker} ${quote.price?.toFixed(2) ?? "—"} ${sign}${Math.abs(quote.day_change_pct ?? 0).toFixed(2)}%`;
-    })
-    .filter(Boolean) as string[];
 
   return (
     <div style={{ position: "relative", zIndex: 1 }}>
-      {/* ── Ticker Tape ─────────────────────────────────────────────────────── */}
-      <div style={{
-        borderBottom: "1px solid var(--border)",
-        background: "var(--surface)",
-        overflow: "hidden",
-        height: "28px",
-        display: "flex",
-        alignItems: "center",
-      }}>
-        <div style={{
-          display: "flex",
-          whiteSpace: "nowrap",
-          animation: "ticker 60s linear infinite",
-          gap: "0",
-        }}>
-          {[...tickerTapeItems, ...tickerTapeItems].map((item, i) => (
-            <span key={i} style={{
-              fontSize: "10px",
-              letterSpacing: "0.06em",
-              color: item.includes("▲") ? "var(--pos)" : item.includes("▼") ? "var(--neg)" : "var(--text-dim)",
-              padding: "0 20px",
-              borderRight: "1px solid var(--border)",
-            }}>
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Header ──────────────────────────────────────────────────────────── */}
+      {/* ── Header ────────────────────────────────────────────────────────── */}
       <header style={{
         borderBottom: "1px solid var(--border)",
         padding: "20px 32px",
@@ -253,31 +91,10 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      {/* ── Main ────────────────────────────────────────────────────────────── */}
-      <main style={{ maxWidth: "1600px", margin: "0 auto", padding: "32px" }}>
-        {SUB_THEME_ORDER.map((theme) => {
-          const themeCompanies = grouped.get(theme) ?? [];
-          const themeData = themeCompanies.map((c) => dataByTicker[c.ticker]).filter(Boolean);
-          if (themeData.length === 0) return null;
-          return <ThemeSection key={theme} theme={theme} companies={themeData} />;
-        })}
-
-        <footer style={{
-          marginTop: "48px",
-          paddingTop: "16px",
-          borderTop: "1px solid var(--border)",
-          fontSize: "10px",
-          color: "var(--text-faint)",
-          letterSpacing: "0.06em",
-          display: "flex",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "8px",
-        }}>
-          <span>DATA · YAHOO FINANCE · SEC EDGAR · TRANSCRIPTS MANUALLY CURATED</span>
-          <span>NOT FINANCIAL ADVICE</span>
-        </footer>
-      </main>
+      {/* ── Client shell: ticker tape + cards (fetches /api/market-data) ── */}
+      <DataProvider>
+        <DashboardShell companiesWithEvents={companiesWithEvents} />
+      </DataProvider>
     </div>
   );
 }

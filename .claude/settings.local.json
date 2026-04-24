@@ -28,7 +28,9 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(git commit *)",
-      "Bash(python3 -c \"import ast; ast.parse\\(open\\('/Users/ishisinghal/market_map_agent/scripts/generate_takeaways.py'\\).read\\(\\)\\); print\\('syntax ok'\\)\")"
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\('/Users/ishisinghal/market_map_agent/scripts/generate_takeaways.py'\\).read\\(\\)\\); print\\('syntax ok'\\)\")",
+      "Bash(python3 -c \"import json; json.load\\(open\\('evals/takeaway_criteria.json'\\)\\); print\\('valid JSON'\\)\")",
+      "Bash(python3 -c \"import json; json.load\\(open\\('/Users/ishisinghal/market_map_agent/data/companies.json'\\)\\); print\\('valid'\\)\")"
     ]
   }
 }
