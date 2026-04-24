@@ -1,21 +1,21 @@
 # Meta Platforms 2025-Q4 — AI Key Takeaways
 
-1. **Meta Compute infrastructure spend.** Meta expects 2026 capital expenditures of $115–135 billion, driven by increased investment to support Meta Superintelligence Labs and core business infrastructure.
+1. **Meta will spend $115–135 billion on AI infrastructure in 2026**, prioritizing data centers, servers, and network capacity to train leading models and deliver “personal superintelligence” at global scale.
 
-2. **AI-driven revenue performance.** Meta’s AI-driven improvements to recommendations and ads delivered a 3.5% lift in Facebook ad clicks and over a 1% gain in Instagram conversions in Q4, with AI-dubbed video translations now reaching hundreds of millions of people daily across nine languages.
+2. **GPU capacity for AI training doubled in Q4 for Meta’s GEM ads-ranking model**, and the company expects to scale GEM training to an even larger cluster in 2026 to increase model complexity and data volume.
 
-3. **GPU procurement and chip partnerships.** In Q4, Meta doubled the number of GPUs used to train its GEM ads-ranking model and extended its Andromeda retrieval engine to run on Nvidia, AMD, and MTIA chips, nearly tripling compute efficiency.
+3. **Andromeda ads retrieval engine now runs on Nvidia, AMD, and Meta’s MTIA chips**, boosting compute efficiency nearly 3x; MTIA support will extend to core ranking and recommendation training workloads in Q1 2026.
 
-4. **Compute constraints persist.** Meta expects to remain compute-constrained through much of 2026 as demand for training and inference outpaces supply, even as capacity additions come online later in the year.
+4. **AI-driven ad performance lifted Facebook ad clicks 3.5% and Instagram conversions >1% in Q4**, with a new runtime model adding a 3% conversion-rate gain on Instagram Feed, Stories, and Reels.
 
-5. **New AI products and adoption.** Meta is testing its AI business assistant with advertisers and sees strong traction, while daily active users generating media via Meta AI tripled year-over-year in Q4, with media creation tools used by nearly 10% of daily Reels viewers.
+5. **AI video-generation tools for ads hit a $10 billion annual revenue run-rate in Q4**, with quarter-over-quarter growth outpacing overall ads revenue growth by nearly 3x.
 
-6. **Model improvements and efficiency gains.** New sequence learning architectures and model consolidation drove a 12% increase in ads quality and a 20% lift in Threads time spent, enabling more efficient scaling of recommendations.
+6. **Meta AI is available in 200+ markets**, with daily actives generating media inside Meta AI tripling year-over-year in Q4; the company is advancing personalization and deeper content understanding to tailor responses.
 
-7. **Data center buildout and capacity.** Meta is restructuring data center development, establishing strategic partnerships and ownership structures to maintain long-term flexibility as it scales infrastructure for AI workloads.
+7. **Smart-glasses sales more than tripled in 2025**, making them one of the fastest-growing consumer electronics categories, driven by AI features such as real-time translation and an always-on Meta AI assistant.
 
-8. **AI chip development.** Meta is advancing its own silicon program through Meta Compute, working alongside partners to architect flexible systems and reduce cost per gigawatt over time.
+8. **Meta is compute-constrained and expects to remain so through much of 2026**, with internal demand for AI capacity outpacing supply until new data-center facilities come online later in the year.
 
-9. **Headcount and AI-focused org changes.** Meta added technical hires, particularly in AI, growing its workforce to over 78,800 employees, with priority areas including infrastructure, Meta Superintelligence Labs, and AI-driven product initiatives.
+9. **Horizon Worlds is being positioned for AI-generated immersive content**, enabling users to create interactive 2D/3D worlds and games via prompts, reducing creation costs and expanding AI-driven spatial computing experiences to mobile.
 
-10. **AI-driven efficiency and revenue impact.** By optimizing ad load and redistributing ads across sessions, Meta achieved a nearly 4x larger revenue impact in the second half of 2025 compared to ad load increases alone.
+10. **AI coding tools boosted Meta engineer output 30% since early 2025**, with power users seeing 80% year-over-year gains; agentic coding adoption jumped in Q4 and is expected to accelerate further.
