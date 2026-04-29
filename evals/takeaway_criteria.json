@@ -49,5 +49,5 @@
     "The company hired 500 new engineers this quarter."
   ],
 
-  "format_instructions": "Write each takeaway as: **Bold headline.** One or two supporting sentences with specific numbers. Aim for 8–12 takeaways. Cover all AI-adjacent topics — infrastructure, models, hardware, robotics, AR/VR, agents — not just cloud/data center. Skip anything with no clear AI angle."
+  "format_instructions": "Write each takeaway as: **Bold headline.** One or two supporting sentences with specific numbers. Aim for 8–15 takeaways — use as many as the transcript warrants, don't pad or truncate. Cover all AI-adjacent topics — infrastructure, models, hardware, robotics, AR/VR, agents — not just cloud/data center. Skip anything with no clear AI angle."
 }
