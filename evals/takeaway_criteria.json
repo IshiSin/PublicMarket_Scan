@@ -15,7 +15,8 @@
     "Robotics and physical AI — autonomous systems, humanoid robots, self-driving",
     "AI in spatial computing, virtual/mixed reality environments",
     "AI-driven content creation tools, generative media at scale",
-    "AI agents, autonomous software, or AI-powered assistants with adoption metrics"
+    "AI agents, autonomous software, or AI-powered assistants with adoption metrics",
+    "Cloud revenue acceleration driven by AI demand — run-rates, backlog growth, customer expansion"
   ],
 
   "exclude": [
@@ -49,5 +50,5 @@
     "The company hired 500 new engineers this quarter."
   ],
 
-  "format_instructions": "Write each takeaway as: **Bold headline.** One or two supporting sentences with specific numbers. Aim for 8–15 takeaways — use as many as the transcript warrants, don't pad or truncate. Cover all AI-adjacent topics — infrastructure, models, hardware, robotics, AR/VR, agents — not just cloud/data center. Skip anything with no clear AI angle."
+  "format_instructions": "Write each takeaway as: **Bold headline.** One or two supporting sentences with specific numbers. Aim for 10–20 takeaways — use as many as the transcript warrants, don't pad or truncate. Cover all AI-adjacent topics — infrastructure, models, hardware, robotics, AR/VR, agents, cloud/hyperscaler growth — not just data center capex. Include AI-driven revenue acceleration with specific run-rates, backlog figures, and growth percentages. Skip anything with no clear AI angle."
 }
