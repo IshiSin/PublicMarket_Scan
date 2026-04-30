@@ -6,8 +6,8 @@
   "eps_estimate": null,
   "revenue_actual": null,
   "revenue_estimate": null,
-  "transcript_status": "pending",
-  "transcript_source_url": null,
-  "transcript_added_at": null,
+  "transcript_status": "published",
+  "transcript_source_url": "https://s206.q4cdn.com/479360582/files/doc_events/2026/Feb/04/2025_Q4_Earnings_Transcript.pdf",
+  "transcript_added_at": "2026-04-29T14:42:56.596Z",
   "ai_summary": null
 }
