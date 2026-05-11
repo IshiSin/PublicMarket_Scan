@@ -38,25 +38,50 @@ else:  # openrouter (default)
     API_KEY_VAR = "OPENROUTER_API_KEY"
 
 
+# Best free models on OpenRouter, ranked by output quality — tried in this order
+PREFERRED_MODELS = [
+    "google/gemini-2.5-pro-exp-03-25:free",
+    "deepseek/deepseek-r1:free",
+    "deepseek/deepseek-v3:free",
+    "google/gemini-2.0-flash-exp:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "google/gemma-3-27b-it:free",
+    "mistralai/mistral-small-3.1-24b-instruct:free",
+    "qwen/qwen3-235b-a22b:free",
+    "qwen/qwen3-30b-a3b:free",
+]
+
+
 def get_free_models(api_key: str) -> list[str]:
-    """Fetch the live OpenRouter model list and return free model IDs, largest context first."""
+    """Return free models: preferred quality order first, then any others from OpenRouter."""
     resp = httpx.get(
         "https://openrouter.ai/api/v1/models",
         headers={"Authorization": f"Bearer {api_key}"},
         timeout=15.0,
     )
     resp.raise_for_status()
-    models = resp.json().get("data", [])
-    free = [
-        m for m in models
+    all_models = resp.json().get("data", [])
+    available_ids = {
+        m["id"] for m in all_models
         if m.get("id", "").endswith(":free")
-        and m.get("context_length", 0) >= 16000  # need enough context for a transcript
+        and m.get("context_length", 0) >= 16000
+    }
+
+    # Start with preferred models that are actually available
+    ordered = [m for m in PREFERRED_MODELS if m in available_ids]
+
+    # Append any remaining free models not in the preferred list (by context size desc)
+    rest = [
+        m for m in all_models
+        if m.get("id", "").endswith(":free")
+        and m.get("context_length", 0) >= 16000
+        and m["id"] not in set(ordered)
     ]
-    # Sort by context length descending — bigger context = can handle more of the transcript
-    free.sort(key=lambda m: m.get("context_length", 0), reverse=True)
-    ids = [m["id"] for m in free]
-    print(f"  Found {len(ids)} free models on OpenRouter")
-    return ids
+    rest.sort(key=lambda m: m.get("context_length", 0), reverse=True)
+    ordered += [m["id"] for m in rest]
+
+    print(f"  Found {len(ordered)} free models — trying best-quality first")
+    return ordered
 
 
 def load_criteria() -> dict:
