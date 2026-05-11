@@ -3,6 +3,7 @@ export type SubTheme =
   | "neoclouds"
   | "semis_compute"
   | "semis_fab_equipment"
+  | "ai_infra_materials"
   | "ai_applications"
   | "international";
 

@@ -8,6 +8,7 @@ export const SUB_THEME_LABELS: Record<SubTheme, string> = {
   neoclouds: "Neoclouds",
   semis_compute: "Semis — Compute",
   semis_fab_equipment: "Semis — Fab & Equipment",
+  ai_infra_materials: "AI Infra Materials",
   ai_applications: "AI Applications",
   international: "International",
 };
@@ -16,6 +17,7 @@ export const SUB_THEME_ORDER: SubTheme[] = [
   "mag7",
   "semis_compute",
   "semis_fab_equipment",
+  "ai_infra_materials",
   "ai_applications",
   "neoclouds",
   "international",
