@@ -8,9 +8,10 @@ const THEME_CODES: Record<SubTheme, string> = {
   mag7:               "01",
   semis_compute:      "02",
   semis_fab_equipment:"03",
-  ai_applications:    "04",
-  neoclouds:          "05",
-  international:      "06",
+  ai_infra_materials: "04",
+  ai_applications:    "05",
+  neoclouds:          "06",
+  international:      "07",
 };
 
 export default function ThemeSection({ theme, companies }: { theme: SubTheme; companies: CompanyData[] }) {
