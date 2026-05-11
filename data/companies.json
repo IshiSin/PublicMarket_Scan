@@ -128,30 +128,6 @@
     "ir_url": "https://investors.palantir.com"
   },
   {
-    "ticker": "CRM",
-    "name": "Salesforce",
-    "sub_theme": "ai_applications",
-    "exchange": "NYSE",
-    "cik": "0001108524",
-    "ir_url": "https://investor.salesforce.com"
-  },
-  {
-    "ticker": "NOW",
-    "name": "ServiceNow",
-    "sub_theme": "ai_applications",
-    "exchange": "NYSE",
-    "cik": "0001373715",
-    "ir_url": "https://investor.servicenow.com"
-  },
-  {
-    "ticker": "ADBE",
-    "name": "Adobe",
-    "sub_theme": "ai_applications",
-    "exchange": "NASDAQ",
-    "cik": "0000796343",
-    "ir_url": "https://www.adobe.com/investor-relations"
-  },
-  {
     "ticker": "CRWV",
     "name": "CoreWeave",
     "sub_theme": "neoclouds",
